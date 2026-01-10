@@ -1,0 +1,155 @@
+name: Build & Release Signed APK + AAB
+
+on:
+  push:
+    branches:
+      - main
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'  # Numeric tags like 0.1.2
+  workflow_dispatch:
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Setup Gradle (with caching)
+        uses: gradle/actions/setup-gradle@v4
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # === BUILD SIGNED APK ===
+      - name: Build unsigned release APK
+        run: ./gradlew assembleRelease
+
+      - name: Sign APK with production key
+        id: sign_apk
+        uses: kevin-david/zipalign-sign-android-release@v2
+        with:
+          releaseDirectory: app/build/outputs/apk/release
+          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
+          alias: ${{ secrets.SIGNING_ALIAS }}
+          keyStorePassword: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
+          zipAlign: true
+        env:
+          BUILD_TOOLS_VERSION: "36.0.0"
+
+      - name: Rename signed APK
+        run: |
+          cd app/build/outputs/apk/release
+          SIGNED_FILE="app-release-unsigned-signed.apk"
+
+          if [[ ! -f "$SIGNED_FILE" ]]; then
+            echo "ERROR: Expected signed file $SIGNED_FILE not found!"
+            ls -la
+            exit 1
+          fi
+
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.apk"
+          else
+            NEW_NAME="TapBlok-latest.apk"
+          fi
+
+          mv "$SIGNED_FILE" "$NEW_NAME"
+          echo "Successfully renamed APK to $NEW_NAME"
+
+      - name: Upload signed APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TapBlok-apk
+          path: app/build/outputs/apk/release/TapBlok-*.apk
+
+      # === BUILD SIGNED AAB ===
+      - name: Decode signing keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/upload-keystore.jks
+
+      - name: Build signed Release AAB
+        env:
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          ./gradlew bundleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/upload-keystore.jks \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
+
+      - name: Rename signed AAB
+        run: |
+          cd app/build/outputs/bundle/release
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.aab"
+          else
+            NEW_NAME="TapBlok-latest.aab"
+          fi
+          mv app-release.aab "$NEW_NAME"
+          echo "Successfully renamed AAB to $NEW_NAME"
+
+      - name: Upload signed AAB as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TapBlok-aab
+          path: app/build/outputs/bundle/release/TapBlok-*.aab
+
+      # === GitHub Release (only on tag) ===
+      - name: Generate Rich Release Notes for Current Tag
+        if: startsWith(github.ref, 'refs/tags/')
+        id: release_notes
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml
+          publish: true
+          version: ${{ github.ref_name }}
+          name: "TapBlok ${{ github.ref_name }} 🚀"
+          tag: ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release with APK + AAB
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+
+          # Find files from the project root (no cd needed)
+          APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-${TAG}.apk" -o -name "TapBlok-latest.apk" | head -n1)
+          AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-${TAG}.aab" -o -name "TapBlok-latest.aab" | head -n1)
+
+          if [[ -z "$APK_FILE" ]]; then
+            echo "ERROR: APK file not found!"
+            exit 1
+          fi
+          if [[ -z "$AAB_FILE" ]]; then
+            echo "ERROR: AAB file not found!"
+            exit 1
+          fi
+
+          echo "Found APK: $APK_FILE"
+          echo "Found AAB: $AAB_FILE"
+
+          gh release delete "$TAG" --yes || true
+
+          gh release create "$TAG" \
+            --title "TapBlok $TAG 🚀" \
+            --notes "${{ steps.release_notes.outputs.body }}" \
+            "$APK_FILE" \
+            "$AAB_FILE#Google Play Bundle"

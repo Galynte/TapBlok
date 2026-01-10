@@ -1,0 +1,289 @@
+package com.galynte.tapblok
+
+import android.content.Intent
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import androidx.core.content.edit
+import com.galynte.tapblok.ui.theme.TapBlokTheme
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ChevronRight
+
+class SettingsActivity : ComponentActivity() {
+
+    companion object {
+        private const val PREF_ENABLE_QR_CODE = "enable_qr_code"
+        private const val PREF_BREAK_DURATION_MINUTES = "break_duration_minutes"
+        private const val PREF_ENABLE_BREAKS = "enable_breaks"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        val isMonitoringActive = intent.getBooleanExtra("is_monitoring_active", false)
+
+        val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
+        val currentEnableQrCode = prefs.getBoolean(PREF_ENABLE_QR_CODE, false)
+        val currentBreakDurationMinutes = prefs.getInt(PREF_BREAK_DURATION_MINUTES, 0)  // 0 = disabled
+
+        setContent {
+            TapBlokTheme {
+                SettingsScreen(
+                    onBackClick = { finish() },
+                    isMonitoringActive = isMonitoringActive,
+                    enableQrCode = currentEnableQrCode,
+                    breakDurationMinutes = currentBreakDurationMinutes,
+                    onEnableQrCodeChanged = { enabled ->
+                        prefs.edit { putBoolean(PREF_ENABLE_QR_CODE, enabled) }
+                    },
+                    onBreakOptionChanged = { minutes ->
+                        prefs.edit {
+                            putInt(PREF_BREAK_DURATION_MINUTES, minutes)
+                            putBoolean(PREF_ENABLE_BREAKS, minutes > 0)
+                        }
+                    },
+                    onWriteNfcTagClick = {
+                        startActivity(Intent(this@SettingsActivity, NfcWriteActivity::class.java))
+                    },
+                    onShowQrCodeClick = {
+                        startActivity(Intent(this@SettingsActivity, QrCodeActivity::class.java))
+                    },
+                    onEditPermissionsClick = {
+                        val intent = Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                            data = Uri.fromParts("package", packageName, null)
+                        }
+                        startActivity(intent)
+                    }
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SettingsScreen(
+    onBackClick: () -> Unit,
+    isMonitoringActive: Boolean,
+    enableQrCode: Boolean,
+    breakDurationMinutes: Int,  // 0 = disabled
+    onEnableQrCodeChanged: (Boolean) -> Unit,
+    onBreakOptionChanged: (Int) -> Unit,
+    onWriteNfcTagClick: () -> Unit,
+    onShowQrCodeClick: () -> Unit,
+    onEditPermissionsClick: () -> Unit
+) {
+    var localEnableQrCode by remember { mutableStateOf(enableQrCode) }
+    var localBreakDurationMinutes by remember { mutableStateOf(breakDurationMinutes) }
+    var showLicenseDialog by remember { mutableStateOf(false) }
+
+    LaunchedEffect(enableQrCode, breakDurationMinutes) {
+        localEnableQrCode = enableQrCode
+        localBreakDurationMinutes = breakDurationMinutes
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Settings") },
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(rememberScrollState())
+                .padding(vertical = 8.dp)
+        ) {
+            // General Settings
+            Text(
+                text = "General Settings",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Activate NFC Tag") },
+                supportingContent = { Text("Authorizes an NFC tag") },
+                trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier.clickable(onClick = onWriteNfcTagClick)
+            )
+            HorizontalDivider()
+
+            ListItem(
+                headlineContent = { Text("Enable QR Code controls") },
+                supportingContent = { Text("Displays Scan QR Code button on the main screen") },
+                trailingContent = {
+                    Switch(
+                        checked = localEnableQrCode,
+                        onCheckedChange = { isChecked ->
+                            localEnableQrCode = isChecked
+                            onEnableQrCodeChanged(isChecked)
+                        }
+                    )
+                }
+            )
+            HorizontalDivider()
+
+            if (localEnableQrCode) {
+                ListItem(
+                    headlineContent = { Text("Display QR Code") },
+                    supportingContent = { Text("Printable version of QR Code") },
+                    trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                    modifier = Modifier.clickable(onClick = onShowQrCodeClick)
+                )
+                HorizontalDivider()
+            }
+
+            ListItem(
+                headlineContent = { Text("Edit Permissions") },
+                supportingContent = { Text("Manage app permissions in system settings") },
+                trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier.clickable(onClick = onEditPermissionsClick)
+            )
+            HorizontalDivider()
+
+            // Focus Session Settings
+            Text(
+                text = "Focus Session Settings",
+                style = MaterialTheme.typography.titleMedium,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
+            )
+
+            ListItem(
+                headlineContent = { Text("Take a Break") },
+                supportingContent = {
+                    Column {
+                        Text(
+                            text = "Allow bypassing blocked apps for a set duration",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(bottom = 12.dp)
+                        )
+
+                        val options = listOf(0, 5, 15, 30)
+                        val labels = listOf("Disabled", "5 min", "15 min", "30 min")
+                        val selectedIndex = options.indexOf(localBreakDurationMinutes).coerceAtLeast(0)
+
+                        SingleChoiceSegmentedButtonRow(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            options.forEachIndexed { index, minutes ->
+                                SegmentedButton(
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = options.size),
+                                    onClick = {
+                                        if (!isMonitoringActive) {
+                                            localBreakDurationMinutes = minutes
+                                            onBreakOptionChanged(minutes)
+                                        }
+                                    },
+                                    selected = index == selectedIndex,
+                                    enabled = !isMonitoringActive
+                                ) {
+                                    Text(labels[index])
+                                }
+                            }
+                        }
+
+                        if (isMonitoringActive) {
+                            Text(
+                                text = "Stop monitoring to change break settings",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                modifier = Modifier.padding(top = 8.dp)
+                            )
+                        }
+                    }
+                }
+            )
+            HorizontalDivider()
+
+            // Open Source Licenses
+            ListItem(
+                headlineContent = { Text("Open Source Licenses") },
+                supportingContent = { Text("Third-party library licenses used in TapBlok") },
+                trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
+                modifier = Modifier.clickable {
+                    // Launch a simple dialog/screen with the license text
+                    // We'll use a new composable for this
+                    // Temporary solution: you can replace with a full activity later
+                    // But for now, we'll use a state to show a modal
+                    showLicenseDialog = true
+                }
+            )
+            HorizontalDivider()
+
+            if (showLicenseDialog) {
+                AlertDialog(
+                    onDismissRequest = { showLicenseDialog = false },
+                    title = { Text("Apache License 2.0") },
+                    text = {
+                        Column(
+                            modifier = Modifier
+                                .verticalScroll(rememberScrollState())
+                                .padding(8.dp)
+                        ) {
+                            Text(
+                                text = """
+                                Apache License
+                                Version 2.0, January 2004
+                                http://www.apache.org/licenses/
+
+                                TERMS AND CONDITIONS FOR USE, REPRODUCTION, AND DISTRIBUTION
+
+                                1. Definitions.
+
+                                "License" shall mean the terms and conditions for use, reproduction, and distribution as defined by Sections 1 through 9 of this document.
+
+                                "Licensor" shall mean the copyright owner or entity authorized by the copyright owner that is granting the License.
+
+                                "Legal Entity" shall mean the union of the acting entity and all other entities that control, are controlled by, or are under common control with that entity. For the purposes of this definition, "control" means (i) the power, direct or indirect, to cause the direction or management of such entity, whether by contract or otherwise, or (ii) ownership of fifty percent (50%) or more of the outstanding shares, or (iii) beneficial ownership of such entity.
+
+                                "You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
+
+                                ... (full text continues)
+
+                                See full license at: http://www.apache.org/licenses/LICENSE-2.0
+
+                                TapBlok uses several open source libraries under Apache 2.0, including:
+                                • Jetpack Compose
+                                • AndroidX libraries
+                                • Room persistence library
+                                • Kotlin standard library
+
+                                Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                            """.trimIndent(),
+                                style = MaterialTheme.typography.bodySmall
+                            )
+                        }
+                    },
+                    confirmButton = {
+                        TextButton(onClick = { showLicenseDialog = false }) {
+                            Text("Close")
+                        }
+                    }
+                )
+            }
+
+        }
+    }
+}

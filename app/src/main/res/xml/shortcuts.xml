@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="start_session"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher_round"
+        android:shortcutShortLabel="@string/shortcut_start_session_short_label"
+        android:shortcutLongLabel="@string/shortcut_start_session_long_label">
+        <intent
+            android:action="com.galynte.tapblok.START_MONITORING"
+            android:targetPackage="com.galynte.tapblok"
+            android:targetClass="com.galynte.tapblok.ShortcutHandlerActivity" />
+    </shortcut>
+</shortcuts>
+
