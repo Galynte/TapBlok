@@ -1,31 +1,22 @@
-name: Build Signed APK/AAB + Semantic Release
+name: Build & Release Signed APK + AAB
 
 on:
   push:
     branches:
       - main
-    # Optional: also trigger on tags if you want to force rebuilds, but semantic-release will handle tagging
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+*'
-
-permissions:
-  contents: write          # for creating tags + editing releases
-  issues: write            # optional: for commenting on issues/PRs
-  pull-requests: write     # optional: same
+      - '[0-9]+.[0-9]+.[0-9]+'  # Numeric tags like 1.0.6, 2.3.0 etc.
+  workflow_dispatch:
 
 jobs:
-  build:
+  build-and-release:
     runs-on: ubuntu-latest
-    outputs:
-      tag: ${{ steps.determine-tag.outputs.tag }}
-      apk: ${{ steps.rename-apk.outputs.apk }}
-      aab: ${{ steps.rename-aab.outputs.aab }}
 
     steps:
-      - name: Checkout code (full history needed later)
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 0   # Needed for changelog / previous tag comparison
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -33,17 +24,18 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Setup Gradle
+      - name: Setup Gradle (with caching)
         uses: gradle/actions/setup-gradle@v4
 
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      # Build & Sign APK
+      # === BUILD SIGNED APK ===
       - name: Build unsigned release APK
         run: ./gradlew assembleRelease
 
-      - name: Sign APK
+      - name: Sign APK with production key
+        id: sign_apk
         uses: kevin-david/zipalign-sign-android-release@v2
         with:
           releaseDirectory: app/build/outputs/apk/release
@@ -55,31 +47,37 @@ jobs:
         env:
           BUILD_TOOLS_VERSION: "36.0.0"
 
-      - name: Rename signed APK using tag/branch
-        id: rename-apk
+      - name: Rename signed APK
         run: |
           cd app/build/outputs/apk/release
-          BASE_NAME="TapBlok"
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG="${{ github.ref_name }}"
-          else
-            TAG="latest"
-          fi
-          APK_NAME="${BASE_NAME}-${TAG}.apk"
-          
-          if [[ -f "app-release-unsigned-signed.apk" ]]; then
-            mv "app-release-unsigned-signed.apk" "$APK_NAME"
-          elif [[ -f "app-release.apk" ]]; then
-            mv "app-release.apk" "$APK_NAME"
-          else
-            echo "APK not found!" && exit 1
-          fi
-          echo "apk=$APK_NAME" >> $GITHUB_OUTPUT
-          echo "Full path: app/build/outputs/apk/release/$APK_NAME"
+          SIGNED_FILE="app-release-unsigned-signed.apk"
 
-      # Build & Sign AAB
-      - name: Prepare keystore for AAB
-        run: echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/upload-keystore.jks
+          if [[ ! -f "$SIGNED_FILE" ]]; then
+            echo "ERROR: Expected signed file $SIGNED_FILE not found!"
+            ls -la
+            exit 1
+          fi
+
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.apk"
+          else
+            NEW_NAME="TapBlok-latest.apk"
+          fi
+
+          mv "$SIGNED_FILE" "$NEW_NAME"
+          echo "Successfully renamed APK to $NEW_NAME"
+
+      - name: Upload signed APK as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: TapBlok-apk
+          path: app/build/outputs/apk/release/TapBlok-*.apk
+
+      # === BUILD SIGNED AAB ===
+      - name: Decode signing keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/upload-keystore.jks
 
       - name: Build signed Release AAB
         env:
@@ -93,66 +91,60 @@ jobs:
             -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
             -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
-      - name: Rename signed AAB using tag/branch
-        id: rename-aab
+      - name: Rename signed AAB
         run: |
           cd app/build/outputs/bundle/release
-          BASE_NAME="TapBlok"
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            TAG="${{ github.ref_name }}"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.aab"
           else
-            TAG="latest"
+            NEW_NAME="TapBlok-latest.aab"
           fi
-          AAB_NAME="${BASE_NAME}-${TAG}.aab"
-          mv app-release.aab "$AAB_NAME" || { echo "AAB not found!"; exit 1; }
-          echo "aab=$AAB_NAME" >> $GITHUB_OUTPUT
+          mv app-release.aab "$NEW_NAME" || { echo "AAB rename failed"; exit 1; }
+          echo "Successfully renamed AAB to $NEW_NAME"
 
-      - name: Determine tag for release
-        id: determine-tag
-        run: |
-          if [[ "${{ github.ref }}" == refs/tags/* ]]; then
-            echo "tag=${{ github.ref_name }}" >> $GITHUB_OUTPUT
-          else
-            echo "tag=" >> $GITHUB_OUTPUT  # empty = no release yet
-          fi
-
-  semantic-release:
-    needs: build
-    if: github.ref == 'refs/heads/main'   # only run on main → creates tag + release
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout (full history)
-        uses: actions/checkout@v4
+      - name: Upload signed AAB as artifact
+        uses: actions/upload-artifact@v4
         with:
-          fetch-depth: 0
+          name: TapBlok-aab
+          path: app/build/outputs/bundle/release/TapBlok-*.aab
 
-      - name: Run Semantic Release
-        id: semantic
-        uses: cycjimmy/semantic-release-action@v6
+      # === GENERATE & PUBLISH RELEASE WITH RICH NOTES (only on tag push) ===
+      - name: Generate & Publish Release with Notes
+        if: startsWith(github.ref, 'refs/tags/')
+        id: release_drafter
+        uses: release-drafter/release-drafter@v6
+        with:
+          config-name: release-drafter.yml     # Your config file
+          publish: true                        # Immediately publish (no draft)
+          name: "TapBlok ${{ github.ref_name }} 🚀"
+          tag: ${{ github.ref_name }}
+          version: ${{ github.ref_name }}      # Override calculated version with the tag
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          semantic_version: ^24 || ^25   # safe range for 2026
 
-      # Upload artifacts **only** if semantic-release created/published a new release (i.e. new tag)
-      - name: Download built artifacts if release created
-        if: steps.semantic.outputs.new-release-published == 'true'
-        uses: actions/download-artifact@v4
-        with:
-          name: artifacts  # optional: if you want to upload artifacts separately earlier
-          path: dist/
-
-      - name: Attach APK & AAB to the new GitHub Release
-        if: steps.semantic.outputs.new-release-published == 'true'
+      - name: Upload APK + AAB to the Release
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          # semantic-release created the tag → use the latest tag
-          LATEST_TAG=$(git describe --tags --abbrev=0)
-          
-          gh release upload "$LATEST_TAG" \
-            "app/build/outputs/apk/release/TapBlok-${LATEST_TAG}.apk" \
-            "app/build/outputs/bundle/release/TapBlok-${LATEST_TAG}.aab#Google Play Bundle" \
-            --clobber
+          TAG=${GITHUB_REF#refs/tags/}
 
-          echo "Assets uploaded to release $LATEST_TAG 🎉"
+          APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-*.apk" | head -n1)
+          AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*.aab" | head -n1)
+
+          if [[ -z "$APK_FILE" || -z "$AAB_FILE" ]]; then
+            echo "ERROR: Artifact not found!"
+            exit 1
+          fi
+
+          echo "Uploading to release $TAG"
+          echo "APK: $APK_FILE"
+          echo "AAB: $AAB_FILE"
+
+          # In case release-drafter created it, we can safely upload (clobber if exists)
+          gh release upload "$TAG" "$APK_FILE" --clobber
+          gh release upload "$TAG" "$AAB_FILE#Google Play Bundle" --clobber
+
+          # Optional: Ensure it's not draft (should already be published)
+          gh release edit "$TAG" --draft=false
