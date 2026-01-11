@@ -3,11 +3,10 @@ name: Build & Release Signed APK + AAB
 on:
   push:
     branches:
-      - main
+      - '**'        # build on ALL branches
     tags:
       - '[0-9]+.[0-9]+.[0-9]+'
   pull_request:
-    types: [closed]
   workflow_dispatch:
 
 permissions:
@@ -23,16 +22,14 @@ jobs:
     if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      - name: Update Release Draft
-        uses: release-drafter/release-drafter@v6
+      - uses: release-drafter/release-drafter@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # ---------------------------------------------------------
-  # 2. BUILD + SIGN + PUBLISH (runs only on tag)
+  # 2. BUILD APK/AAB (runs on ALL branches)
   # ---------------------------------------------------------
-  build_and_publish:
-    if: startsWith(github.ref, 'refs/tags/')
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -77,12 +74,15 @@ jobs:
 
           if [[ ! -f "$SIGNED_FILE" ]]; then
             echo "ERROR: Expected signed file $SIGNED_FILE not found!"
-            ls -la
             exit 1
           fi
 
-          TAG=${GITHUB_REF#refs/tags/}
-          NEW_NAME="TapBlok-${TAG}.apk"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.apk"
+          else
+            NEW_NAME="TapBlok-${GITHUB_REF_NAME}.apk"
+          fi
 
           mv "$SIGNED_FILE" "$NEW_NAME"
           echo "Renamed APK to $NEW_NAME"
@@ -113,10 +113,13 @@ jobs:
       - name: Rename signed AAB
         run: |
           cd app/build/outputs/bundle/release
-          TAG=${GITHUB_REF#refs/tags/}
-          NEW_NAME="TapBlok-${TAG}.aab"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            NEW_NAME="TapBlok-${TAG}.aab"
+          else
+            NEW_NAME="TapBlok-${GITHUB_REF_NAME}.aab"
+          fi
           mv app-release.aab "$NEW_NAME"
-          echo "Renamed AAB to $NEW_NAME"
 
       - name: Upload signed AAB as artifact
         uses: actions/upload-artifact@v4
@@ -124,23 +127,25 @@ jobs:
           name: TapBlok-aab
           path: app/build/outputs/bundle/release/TapBlok-*.aab
 
-      # === PUBLISH THE DRAFT RELEASE ===
-      - name: Publish Release + Upload Assets
+  # ---------------------------------------------------------
+  # 3. PUBLISH RELEASE (only on tag)
+  # ---------------------------------------------------------
+  publish_release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Publish Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${GITHUB_REF#refs/tags/}
 
+          gh release edit "$TAG" --draft=false
+
           APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-${TAG}.apk")
           AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-${TAG}.aab")
 
-          echo "Publishing release for tag $TAG"
-          echo "APK: $APK_FILE"
-          echo "AAB: $AAB_FILE"
-
-          # Publish the draft created by Release Drafter
-          gh release edit "$TAG" --draft=false
-
-          # Upload assets
           gh release upload "$TAG" "$APK_FILE" --clobber
           gh release upload "$TAG" "$AAB_FILE#Google Play Bundle" --clobber
