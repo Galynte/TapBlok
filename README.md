@@ -18,7 +18,7 @@ The app is built entirely in Kotlin and utilizes modern Android development prac
 * **Select All / Unselect All:** Buttons in the app selection screen allow users to quickly add or remove all apps from the block list.
 * **Session Control:** A focus session can be started or stopped via multiple methods:
     * **In-App Buttons:** A "Start Monitoring" button on the main screen.
-    * **NFC Tag:** Scanning a pre-written NFC tag toggles the service.
+    * **NFC Tag:** Scanning a pre-written NFC tag toggles the service.  Generic NFC writable (e.g. NFC 215) tags may be used.
     * **QR Code:** Scanning a unique QR code toggles the service.
     * **App Shortcut:** Long-pressing the app icon reveals a "Start Session" shortcut that starts monitoring instantly without opening the app.
 * **Emergency Override:** A "60-Second Hold" button is available on the main screen during an active session. Holding it for the full duration provides a "break glass" option to stop the service if the NFC tag or QR code is lost.
