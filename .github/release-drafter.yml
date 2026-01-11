@@ -3,38 +3,27 @@ tag-template: "$RESOLVED_VERSION"
 
 categories:
   - title: "🚀 Features"
-    key: "features"
     labels:
       - "feat"
       - "feature"
-
   - title: "🐛 Bug Fixes"
-    key: "bug_fixes"
     labels:
       - "fix"
       - "bug"
-
   - title: "📦 Dependencies"
-    key: "dependencies"
     labels:
-      - "chore"
       - "dependencies"
-
+      - "chore(deps)"   # common convention
   - title: "📝 Documentation"
-    key: "documentation"
     labels:
       - "docs"
 
-change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+# Optional: make titles prettier / add collapse for long lists
+category-template: "### $TITLE"
 
-version-resolver:
-  major:
-    labels: ["major"]
-  minor:
-    labels: ["minor"]
-  patch:
-    labels: ["patch"]
-  default: patch
+change-template: "- $TITLE @$AUTHOR ([#$NUMBER]($REPOSITORY/pull/$NUMBER))"
+
+change-title-escapes: '\<*_&'   # escape markdown characters in titles
 
 template: |
   # 🚀 TapBlok $RESOLVED_VERSION
@@ -42,22 +31,12 @@ template: |
   ## 🆕 What's New
   A quick overview of the most important improvements in this release.
 
-  ## ✨ Features
-  $CHANGES_BY_CATEGORY:features
-
-  ## 🐛 Bug Fixes
-  $CHANGES_BY_CATEGORY:bug_fixes
-
-  ## 📦 Dependency Updates
-  $CHANGES_BY_CATEGORY:dependencies
-
-  ## 📝 Documentation
-  $CHANGES_BY_CATEGORY:documentation
+  $CHANGES
 
   <details>
-  <summary><strong>📜 Full Change List</strong></summary>
+  <summary><strong>📜 Full Change List (including uncategorized)</strong></summary>
 
-  $CHANGES
+  $CHANGES   # you can repeat it if you want raw list too
 
   </details>
 
@@ -70,3 +49,5 @@ template: |
 
   ## 🔗 Full Changelog
   https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+
+  Thanks to everyone who contributed! ❤️
