@@ -2,28 +2,27 @@ name-template: "TapBlok $RESOLVED_VERSION 🚀"
 tag-template: "$RESOLVED_VERSION"
 
 categories:
-  - title: "🚀 Features"
+  - title: "✨ Features"
     labels:
       - "feat"
       - "feature"
+      - "enhancement"
   - title: "🐛 Bug Fixes"
     labels:
       - "fix"
       - "bug"
-  - title: "📦 Dependencies"
+      - "bugfix"
+  - title: "📦 Dependency Updates"
     labels:
       - "dependencies"
-      - "chore(deps)"   # common convention
+      - "chore(deps)"
+      - "chore"
   - title: "📝 Documentation"
     labels:
       - "docs"
 
-# Optional: make titles prettier / add collapse for long lists
-category-template: "### $TITLE"
-
 change-template: "- $TITLE @$AUTHOR ([#$NUMBER]($REPOSITORY/pull/$NUMBER))"
-
-change-title-escapes: '\<*_&'   # escape markdown characters in titles
+change-title-escapes: '\<*_&'   # Prevents markdown breakage in titles
 
 template: |
   # 🚀 TapBlok $RESOLVED_VERSION
@@ -31,12 +30,12 @@ template: |
   ## 🆕 What's New
   A quick overview of the most important improvements in this release.
 
-  $CHANGES
+  $CHANGES   # ← This will auto-insert all categorized sections here!
 
   <details>
-  <summary><strong>📜 Full Change List (including uncategorized)</strong></summary>
+  <summary><strong>📜 Full Change List</strong></summary>
 
-  $CHANGES   # you can repeat it if you want raw list too
+  $CHANGES   # Optional repeat for raw/uncategorized view if needed
 
   </details>
 
