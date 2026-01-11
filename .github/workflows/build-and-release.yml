@@ -5,11 +5,34 @@ on:
     branches:
       - main
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'  # Numeric tags like 0.1.2
+      - '[0-9]+.[0-9]+.[0-9]+'
+  pull_request:
+    types: [closed]
   workflow_dispatch:
 
+permissions:
+  contents: write
+  pull-requests: read
+
 jobs:
-  build-and-release:
+
+  # ---------------------------------------------------------
+  # 1. UPDATE RELEASE DRAFT (runs on PR merge or push to main)
+  # ---------------------------------------------------------
+  update_release_draft:
+    if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Update Release Draft
+        uses: release-drafter/release-drafter@v6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ---------------------------------------------------------
+  # 2. BUILD + SIGN + PUBLISH (runs only on tag)
+  # ---------------------------------------------------------
+  build_and_publish:
+    if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
 
     steps:
@@ -58,15 +81,11 @@ jobs:
             exit 1
           fi
 
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAG=${GITHUB_REF#refs/tags/}
-            NEW_NAME="TapBlok-${TAG}.apk"
-          else
-            NEW_NAME="TapBlok-latest.apk"
-          fi
+          TAG=${GITHUB_REF#refs/tags/}
+          NEW_NAME="TapBlok-${TAG}.apk"
 
           mv "$SIGNED_FILE" "$NEW_NAME"
-          echo "Successfully renamed APK to $NEW_NAME"
+          echo "Renamed APK to $NEW_NAME"
 
       - name: Upload signed APK as artifact
         uses: actions/upload-artifact@v4
@@ -94,14 +113,10 @@ jobs:
       - name: Rename signed AAB
         run: |
           cd app/build/outputs/bundle/release
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAG=${GITHUB_REF#refs/tags/}
-            NEW_NAME="TapBlok-${TAG}.aab"
-          else
-            NEW_NAME="TapBlok-latest.aab"
-          fi
+          TAG=${GITHUB_REF#refs/tags/}
+          NEW_NAME="TapBlok-${TAG}.aab"
           mv app-release.aab "$NEW_NAME"
-          echo "Successfully renamed AAB to $NEW_NAME"
+          echo "Renamed AAB to $NEW_NAME"
 
       - name: Upload signed AAB as artifact
         uses: actions/upload-artifact@v4
@@ -109,47 +124,23 @@ jobs:
           name: TapBlok-aab
           path: app/build/outputs/bundle/release/TapBlok-*.aab
 
-      # === GitHub Release (only on tag) ===
-      - name: Generate Rich Release Notes for Current Tag
-        if: startsWith(github.ref, 'refs/tags/')
-        id: release_notes
-        uses: release-drafter/release-drafter@v6
-        with:
-          config-name: release-drafter.yml
-          publish: true
-          version: ${{ github.ref_name }}
-          name: "TapBlok ${{ github.ref_name }} 🚀"
-          tag: ${{ github.ref_name }}
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Create GitHub Release with APK + AAB
-        if: startsWith(github.ref, 'refs/tags/')
+      # === PUBLISH THE DRAFT RELEASE ===
+      - name: Publish Release + Upload Assets
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${GITHUB_REF#refs/tags/}
 
-          # Find files from the project root (no cd needed)
-          APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-${TAG}.apk" -o -name "TapBlok-latest.apk" | head -n1)
-          AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-${TAG}.aab" -o -name "TapBlok-latest.aab" | head -n1)
+          APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-${TAG}.apk")
+          AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-${TAG}.aab")
 
-          if [[ -z "$APK_FILE" ]]; then
-            echo "ERROR: APK file not found!"
-            exit 1
-          fi
-          if [[ -z "$AAB_FILE" ]]; then
-            echo "ERROR: AAB file not found!"
-            exit 1
-          fi
+          echo "Publishing release for tag $TAG"
+          echo "APK: $APK_FILE"
+          echo "AAB: $AAB_FILE"
 
-          echo "Found APK: $APK_FILE"
-          echo "Found AAB: $AAB_FILE"
+          # Publish the draft created by Release Drafter
+          gh release edit "$TAG" --draft=false
 
-          gh release delete "$TAG" --yes || true
-
-          gh release create "$TAG" \
-            --title "TapBlok $TAG 🚀" \
-            --notes "${{ steps.release_notes.outputs.body }}" \
-            "$APK_FILE" \
-            "$AAB_FILE#Google Play Bundle"
+          # Upload assets
+          gh release upload "$TAG" "$APK_FILE" --clobber
+          gh release upload "$TAG" "$AAB_FILE#Google Play Bundle" --clobber

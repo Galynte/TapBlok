@@ -1,36 +1,72 @@
 name-template: "TapBlok $RESOLVED_VERSION 🚀"
 tag-template: "$RESOLVED_VERSION"
+
 categories:
   - title: "🚀 Features"
+    key: "features"
     labels:
       - "feat"
       - "feature"
+
   - title: "🐛 Bug Fixes"
+    key: "bug_fixes"
     labels:
       - "fix"
       - "bug"
+
   - title: "📦 Dependencies"
+    key: "dependencies"
     labels:
       - "chore"
       - "dependencies"
+
   - title: "📝 Documentation"
+    key: "documentation"
     labels:
       - "docs"
+
 change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+
 version-resolver:
   major:
-    labels:
-      - "major"
+    labels: ["major"]
   minor:
-    labels:
-      - "minor"
+    labels: ["minor"]
   patch:
-    labels:
-      - "patch"
+    labels: ["patch"]
   default: patch
+
 template: |
-  ## What's Changed
+  # 🚀 TapBlok $RESOLVED_VERSION
+
+  ## 🆕 What's New
+  A quick overview of the most important improvements in this release.
+
+  ## ✨ Features
+  $CHANGES_BY_CATEGORY:features
+
+  ## 🐛 Bug Fixes
+  $CHANGES_BY_CATEGORY:bug_fixes
+
+  ## 📦 Dependency Updates
+  $CHANGES_BY_CATEGORY:dependencies
+
+  ## 📝 Documentation
+  $CHANGES_BY_CATEGORY:documentation
+
+  <details>
+  <summary><strong>📜 Full Change List</strong></summary>
 
   $CHANGES
 
-  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
+  </details>
+
+  ## 📥 Downloads
+  - **APK:** TapBlok-$RESOLVED_VERSION.apk  
+  - **AAB:** TapBlok-$RESOLVED_VERSION.aab (Google Play Bundle)
+
+  ## 👥 Contributors
+  $CONTRIBUTORS
+
+  ## 🔗 Full Changelog
+  https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
