@@ -1,4 +1,6 @@
 name: Build & Release Signed APK + AAB
+permissions:
+  contents: write  # This grants write access for releases, tags, and asset uploads
 
 on:
   push:
