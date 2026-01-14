@@ -1,13 +1,13 @@
 name: Build & Release Signed APK + AAB
 permissions:
-  contents: write  # This grants write access for releases, tags, and asset uploads
+  contents: write
 
 on:
   push:
     branches:
       - main
     tags:
-      - '[0-9]+.[0-9]+.[0-9]+'  # Numeric tags like 1.0.6, 2.3.0 etc.
+      - '[0-9]+.[0-9]+.[0-9]+'
   workflow_dispatch:
 
 jobs:
@@ -18,7 +18,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # Needed for changelog / previous tag comparison
+          fetch-depth: 0
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -111,17 +111,17 @@ jobs:
           name: TapBlok-aab
           path: app/build/outputs/bundle/release/TapBlok-*.aab
 
-      # === GENERATE & PUBLISH RELEASE WITH RICH NOTES (only on tag push) ===
-      - name: Generate & Publish Release with Notes
+      # === CREATE/UPDATE RELEASE WITH RICH NOTES (only on tag push) ===
+      - name: Create Release with Release Drafter
         if: startsWith(github.ref, 'refs/tags/')
         id: release_drafter
         uses: release-drafter/release-drafter@v6
         with:
-          config-name: release-drafter.yml     # Your config file
-          publish: true                        # Immediately publish (no draft)
+          config-name: release-drafter.yml
+          publish: true
           name: "TapBlok ${{ github.ref_name }} 🚀"
           tag: ${{ github.ref_name }}
-          version: ${{ github.ref_name }}      # Override calculated version with the tag
+          # Don't override version - let release-drafter calculate it
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -131,6 +131,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           TAG=${GITHUB_REF#refs/tags/}
+
+          # Wait a moment for the release to be fully created
+          sleep 2
 
           APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-*.apk" | head -n1)
           AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*.aab" | head -n1)
@@ -144,9 +147,5 @@ jobs:
           echo "APK: $APK_FILE"
           echo "AAB: $AAB_FILE"
 
-          # In case release-drafter created it, we can safely upload (clobber if exists)
           gh release upload "$TAG" "$APK_FILE" --clobber
-          gh release upload "$TAG" "$AAB_FILE#Google Play Bundle" --clobber
-
-          # Optional: Ensure it's not draft (should already be published)
-          gh release edit "$TAG" --draft=false
+          gh release upload "$TAG" "$AAB_FILE" --clobber

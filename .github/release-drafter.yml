@@ -1,8 +1,29 @@
 name-template: "TapBlok $RESOLVED_VERSION 🚀"
 tag-template: "$RESOLVED_VERSION"
 
+# Tell release-drafter how to bump versions
+version-resolver:
+  major:
+    labels:
+      - 'major'
+      - 'breaking'
+  minor:
+    labels:
+      - 'minor'
+      - 'feature'
+      - 'feat'
+  patch:
+    labels:
+      - 'patch'
+      - 'fix'
+      - 'bugfix'
+      - 'bug'
+      - 'chore'
+      - 'dependencies'
+  default: patch
+
 categories:
-  - title: "✨ Features"
+  - title: "✨ New Features"
     labels:
       - "feat"
       - "feature"
@@ -12,41 +33,63 @@ categories:
       - "fix"
       - "bug"
       - "bugfix"
-  - title: "📦 Dependency Updates"
+  - title: "📦 Dependencies"
     labels:
       - "dependencies"
       - "chore(deps)"
+  - title: "🔧 Maintenance"
+    labels:
       - "chore"
   - title: "📝 Documentation"
     labels:
       - "docs"
 
-change-template: "- $TITLE @$AUTHOR ([#$NUMBER]($REPOSITORY/pull/$NUMBER))"
-change-title-escapes: '\<*_&'   # Prevents markdown breakage in titles
+# Exclude certain PRs from appearing in changelog
+exclude-labels:
+  - 'skip-changelog'
+  - 'duplicate'
+  - 'invalid'
+
+change-template: "- $TITLE @$AUTHOR (#$NUMBER)"
+change-title-escapes: '\<*_&'
+
+# Don't include contributors with certain labels
+exclude-contributors:
+  - 'dependabot'
 
 template: |
-  # 🚀 TapBlok $RESOLVED_VERSION
+  ## 🎉 What's Changed
+  
+  $CHANGES
 
-  ## 🆕 What's New
-  A quick overview of the most important improvements in this release.
+  ## 📥 Installation
+  
+  Download the APK below and install it on your Android device, or use the AAB for Google Play distribution.
+  
+  ---
+  
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
+  
+  Thanks to all contributors! 🙏
 
-  $CHANGES   # ← This will auto-insert all categorized sections here!
-
-  <details>
-  <summary><strong>📜 Full Change List</strong></summary>
-
-  $CHANGES   # Optional repeat for raw/uncategorized view if needed
-
-  </details>
-
-  ## 📥 Downloads
-  - **APK:** TapBlok-$RESOLVED_VERSION.apk  
-  - **AAB:** TapBlok-$RESOLVED_VERSION.aab (Google Play Bundle)
-
-  ## 👥 Contributors
-  $CONTRIBUTORS
-
-  ## 🔗 Full Changelog
-  https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...$RESOLVED_VERSION
-
-  Thanks to everyone who contributed! ❤️
+autolabeler:
+  - label: 'feat'
+    branch:
+      - '/^feat(ure)?[/-].+/'
+    title:
+      - '/^feat(\(.+\))?:/i'
+  - label: 'fix'
+    branch:
+      - '/^fix[/-].+/'
+    title:
+      - '/^fix(\(.+\))?:/i'
+  - label: 'chore'
+    branch:
+      - '/^chore[/-].+/'
+    title:
+      - '/^chore(\(.+\))?:/i'
+  - label: 'docs'
+    files:
+      - '*.md'
+    title:
+      - '/^docs(\(.+\))?:/i'
