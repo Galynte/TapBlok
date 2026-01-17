@@ -204,6 +204,17 @@ fun MainScreen() {
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
+
+                    // Shows the length of monitoring session
+                    val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                    val durMin = prefs.getInt("monitoring_duration_minutes", 0)
+                    if (durMin > 0) {
+                        Text(
+                            text = "Session ends in $durMin minutes",
+                            color = Color(0xFF1976D2),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
