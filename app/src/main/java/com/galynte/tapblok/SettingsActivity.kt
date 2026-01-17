@@ -156,9 +156,9 @@ fun SettingsScreen(
                 modifier = Modifier.clickable(onClick = onEditPermissionsClick)
             )
             HorizontalDivider()
-            // Monitoring Session Settings
+            // Monitoring Settings
             Text(
-                text = "Monitoring Session Settings",
+                text = "Monitoring Settings",
                 style = MaterialTheme.typography.titleMedium,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp)
@@ -174,7 +174,7 @@ fun SettingsScreen(
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
                         val options = listOf(0, 15, 30, 60)
-                        val labels = listOf("Never", "15 min", "30 min", "60 min")
+                        val labels = listOf("Disabled", "15 min", "30 min", "60 min")
                         val selectedIndex = options.indexOf(localMonitoringDurationMinutes).coerceAtLeast(0)
                         SingleChoiceSegmentedButtonRow(
                             modifier = Modifier.fillMaxWidth()
