@@ -127,7 +127,7 @@ fun MainScreen() {
                 ) == PackageManager.PERMISSION_GRANTED
                 enableQrCode = prefsNow.getBoolean(PREF_ENABLE_QR_CODE, false)
 
-                // NEW: Calculate session info
+                // Calculate session info
                 sessionDurationMinutes = prefsNow.getInt("monitoring_duration_minutes", 0)
                 if (isServiceRunning && sessionDurationMinutes > 0) {
                     val startMs = prefsNow.getLong("session_start_timestamp", 0L)
@@ -138,10 +138,9 @@ fun MainScreen() {
                         val remainingMs = (totalMs - elapsedMs).coerceAtLeast(0)
                         remainingMinutes = (remainingMs / 60_000L).toInt().coerceAtLeast(0)
                     } else {
-                        // Fallback when timestamp not yet written
-                        remainingMinutes = sessionDurationMinutes   // show full duration as optimistic default
+                        // Fallback when timestamp not yet written (e.g. very first start)
+                        remainingMinutes = sessionDurationMinutes // optimistic: show full duration
                     }
-                }
                 } else {
                     remainingMinutes = 0
                 }
