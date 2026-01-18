@@ -45,6 +45,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
 private fun hasUsageStatsPermission(context: Context): Boolean {
     val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
     val mode = appOps.checkOpNoThrow(
@@ -54,11 +55,14 @@ private fun hasUsageStatsPermission(context: Context): Boolean {
     )
     return mode == AppOpsManager.MODE_ALLOWED
 }
+
 private const val PREF_ENABLE_QR_CODE = "enable_qr_code"
+
 @Composable
 fun MainScreen() {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+
     var hasUsagePermission by remember { mutableStateOf(hasUsageStatsPermission(context)) }
     var canDrawOverlays by remember { mutableStateOf(Settings.canDrawOverlays(context)) }
     var isServiceRunning by remember { mutableStateOf(isServiceRunning(context, AppMonitoringService::class.java)) }
@@ -73,10 +77,10 @@ fun MainScreen() {
     }
     val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     var enableQrCode by remember { mutableStateOf(prefs.getBoolean(PREF_ENABLE_QR_CODE, false)) }
+
     var holdProgress by remember { mutableStateOf(0f) }
     var isHolding by remember { mutableStateOf(false) }
 
-    // NEW: Session duration & remaining time (calculated only on resume)
     var sessionDurationMinutes by remember { mutableStateOf(0) }
     var remainingMinutes by remember { mutableStateOf(0) }
 
@@ -87,11 +91,13 @@ fun MainScreen() {
         canDrawOverlays = Settings.canDrawOverlays(context)
         isServiceRunning = isServiceRunning(context, AppMonitoringService::class.java)
     }
+
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { isGranted ->
         hasCameraPermission = isGranted
     }
+
     val qrCodeScannerLauncher = rememberLauncherForActivityResult(
         contract = ScanContract()
     ) { result ->
@@ -115,7 +121,6 @@ fun MainScreen() {
         }
     }
 
-    // Refresh state & calculate remaining time when activity resumes
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
@@ -128,22 +133,18 @@ fun MainScreen() {
                 ) == PackageManager.PERMISSION_GRANTED
                 enableQrCode = prefsNow.getBoolean(PREF_ENABLE_QR_CODE, false)
 
-                // Calculate session info
                 sessionDurationMinutes = prefsNow.getInt("monitoring_duration_minutes", 0)
+                remainingMinutes = 0  // reset by default
+
                 if (isServiceRunning && sessionDurationMinutes > 0) {
                     val startMs = prefsNow.getLong("session_start_timestamp", 0L)
                     if (startMs > 0) {
-                        // normal calculation
                         val elapsedMs = System.currentTimeMillis() - startMs
                         val totalMs = sessionDurationMinutes * 60_000L
                         val remainingMs = (totalMs - elapsedMs).coerceAtLeast(0)
                         remainingMinutes = (remainingMs / 60_000L).toInt().coerceAtLeast(0)
-                    } else {
-                        // Fallback when timestamp not yet written (e.g. very first start)
-                        remainingMinutes = sessionDurationMinutes // optimistic: show full duration
                     }
-                } else {
-                    remainingMinutes = 0
+                    // If startMs == 0 → we silently show nothing until next resume
                 }
             }
         }
@@ -156,7 +157,7 @@ fun MainScreen() {
     LaunchedEffect(isHolding) {
         if (isHolding) {
             val startTime = System.currentTimeMillis()
-            val duration = 60000L // 60 seconds
+            val duration = 60000L
             while (isHolding && System.currentTimeMillis() - startTime < duration) {
                 holdProgress = (System.currentTimeMillis() - startTime) / duration.toFloat()
                 delay(50)
@@ -213,26 +214,16 @@ fun MainScreen() {
                         color = Color.Gray
                     )
 
-                    // NEW: Show session duration / remaining time
-                    if (sessionDurationMinutes > 0) {
+                    // Only show remaining time if we have a valid duration AND a valid calculation
+                    if (sessionDurationMinutes > 0 && remainingMinutes > 0) {
                         Spacer(modifier = Modifier.height(8.dp))
                         Text(
-                            text = if (remainingMinutes > 0) {
-                                "Session auto-ends in $remainingMinutes minutes"
-                            } else {
-                                "Session ending soon"
-                            },
+                            text = "Session auto-ends in $remainingMinutes minutes",
                             style = MaterialTheme.typography.bodyMedium,
                             color = Color(0xFF1976D2)
                         )
-                    } else {
-                        Spacer(modifier = Modifier.height(8.dp))
-                        Text(
-                            text = "Session is set to infinite duration",
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color(0xFF757575)
-                        )
                     }
+                    // Nothing shown otherwise (no "ending soon", no "starting", no infinite mention)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -250,6 +241,7 @@ fun MainScreen() {
                 ) {
                     Text("Start Monitoring")
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
@@ -259,6 +251,7 @@ fun MainScreen() {
                 ) {
                     Text("Manage Blocked Apps")
                 }
+
                 if (enableQrCode) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {
@@ -272,6 +265,7 @@ fun MainScreen() {
                         Text("Scan QR Code")
                     }
                 }
+
                 Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
