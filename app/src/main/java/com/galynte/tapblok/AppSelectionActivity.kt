@@ -2,7 +2,6 @@ package com.galynte.tapblok
 
 import android.app.Application
 import android.content.Intent
-// Unused import 'android.content.pm.PackageManager' has been removed.
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -14,10 +13,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-// --- START OF CHANGES ---
-// Use the new AutoMirrored version of ArrowBack to resolve the deprecation warning.
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-// --- END OF CHANGES ---
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState

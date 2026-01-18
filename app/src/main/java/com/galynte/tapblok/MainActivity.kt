@@ -36,7 +36,6 @@ import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.delay
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -76,13 +75,14 @@ fun MainScreen() {
             ) == PackageManager.PERMISSION_GRANTED
         )
     }
-
-    // Read QR code toggle from settings (off by default)
     val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
     var enableQrCode by remember { mutableStateOf(prefs.getBoolean(PREF_ENABLE_QR_CODE, false)) }
 
     var holdProgress by remember { mutableStateOf(0f) }
     var isHolding by remember { mutableStateOf(false) }
+
+    var sessionDurationMinutes by remember { mutableStateOf(0) }
+    var remainingMinutes by remember { mutableStateOf(0) }
 
     val settingsLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
@@ -125,15 +125,27 @@ fun MainScreen() {
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 isServiceRunning = isServiceRunning(context, AppMonitoringService::class.java)
-                val prefs = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
-                blockedAppAttempts = prefs.getInt("blocked_app_attempts", 0)
+                val prefsNow = context.getSharedPreferences("app_prefs", Context.MODE_PRIVATE)
+                blockedAppAttempts = prefsNow.getInt("blocked_app_attempts", 0)
                 hasCameraPermission = ContextCompat.checkSelfPermission(
                     context,
                     Manifest.permission.CAMERA
                 ) == PackageManager.PERMISSION_GRANTED
+                enableQrCode = prefsNow.getBoolean(PREF_ENABLE_QR_CODE, false)
 
-                // ADD THIS LINE: Refresh QR code toggle on resume
-                enableQrCode = prefs.getBoolean(PREF_ENABLE_QR_CODE, false)
+                sessionDurationMinutes = prefsNow.getInt("monitoring_duration_minutes", 0)
+                remainingMinutes = 0  // reset by default
+
+                if (isServiceRunning && sessionDurationMinutes > 0) {
+                    val startMs = prefsNow.getLong("session_start_timestamp", 0L)
+                    if (startMs > 0) {
+                        val elapsedMs = System.currentTimeMillis() - startMs
+                        val totalMs = sessionDurationMinutes * 60_000L
+                        val remainingMs = (totalMs - elapsedMs).coerceAtLeast(0)
+                        remainingMinutes = (remainingMs / 60_000L).toInt().coerceAtLeast(0)
+                    }
+                    // If startMs == 0 → we silently show nothing until next resume
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -145,7 +157,7 @@ fun MainScreen() {
     LaunchedEffect(isHolding) {
         if (isHolding) {
             val startTime = System.currentTimeMillis()
-            val duration = 60000L // 60 seconds
+            val duration = 60000L
             while (isHolding && System.currentTimeMillis() - startTime < duration) {
                 holdProgress = (System.currentTimeMillis() - startTime) / duration.toFloat()
                 delay(50)
@@ -174,21 +186,17 @@ fun MainScreen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            // ADD THIS IMAGE BLOCK
             Image(
-                painter = painterResource(id = R.drawable.ic_tapblok_logo),  // Change to your filename
+                painter = painterResource(id = R.drawable.ic_tapblok_logo),
                 contentDescription = "TapBlok Logo",
                 modifier = Modifier
-                    .size(120.dp)  // Adjust size as needed (e.g., 100.dp, 150.dp)
+                    .size(120.dp)
                     .padding(bottom = 24.dp)
             )
-
             Text(
                 text = "TapBlok",
                 style = MaterialTheme.typography.headlineLarge
             )
-
             Spacer(modifier = Modifier.height(32.dp))
 
             if (allPermissionsGranted) {
@@ -197,6 +205,7 @@ fun MainScreen() {
                     style = MaterialTheme.typography.bodyLarge,
                     color = if (isServiceRunning) Color(0xFF4CAF50) else Color.Gray
                 )
+
                 if (isServiceRunning) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
@@ -204,10 +213,20 @@ fun MainScreen() {
                         style = MaterialTheme.typography.bodyMedium,
                         color = Color.Gray
                     )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
 
-                // Start Monitoring button — disabled (grayed out) when active
+                    // Only show remaining time if we have a valid duration AND a valid calculation
+                    if (sessionDurationMinutes > 0 && remainingMinutes > 0) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = "Session auto-ends in $remainingMinutes minutes",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = Color(0xFF1976D2)
+                        )
+                    }
+                    // Nothing shown otherwise (no "ending soon", no "starting", no infinite mention)
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
                 Button(
                     onClick = {
                         val serviceIntent = Intent(context, AppMonitoringService::class.java)
@@ -218,7 +237,7 @@ fun MainScreen() {
                         }
                         isServiceRunning = true
                     },
-                    enabled = !isServiceRunning  // This grays it out when monitoring is on
+                    enabled = !isServiceRunning
                 ) {
                     Text("Start Monitoring")
                 }
@@ -233,7 +252,6 @@ fun MainScreen() {
                     Text("Manage Blocked Apps")
                 }
 
-                // Only show Scan QR Code if enabled in Settings
                 if (enableQrCode) {
                     Spacer(modifier = Modifier.height(8.dp))
                     Button(onClick = {

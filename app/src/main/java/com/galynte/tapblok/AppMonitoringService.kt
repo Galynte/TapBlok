@@ -29,6 +29,7 @@ class AppMonitoringService : Service() {
     private var blockedApps: List<String> = emptyList()
     private var isBreakActive = false
     private var breakTimer: CountDownTimer? = null
+    private var sessionTimer: CountDownTimer? = null
 
     companion object {
         const val NOTIFICATION_ID = 1
@@ -104,8 +105,26 @@ class AppMonitoringService : Service() {
                         }
                     }
                 }
+
                 delay(1000)
             }
+        }
+
+        val durationMinutes = prefs.getInt("monitoring_duration_minutes", 0)
+        if (durationMinutes > 0) {
+            prefs.edit {
+                putLong("session_start_timestamp", System.currentTimeMillis())
+                apply()
+            }
+
+            val durationMillis = durationMinutes * 60 * 1000L
+            sessionTimer = object : CountDownTimer(durationMillis, 1000) {
+                override fun onTick(millisUntilFinished: Long) {}
+                override fun onFinish() {
+                    Log.d("AppMonitoringService", "Session timer finished. Stopping service.")
+                    stopSelf()
+                }
+            }.start()
         }
 
         return START_STICKY
@@ -116,14 +135,11 @@ class AppMonitoringService : Service() {
         Log.d("AppMonitoringService", "Break started.")
 
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
-        val breakMinutes = prefs.getInt("break_duration_minutes", 5)  // Default 5
+        val breakMinutes = prefs.getInt("break_duration_minutes", 5)
         val breakMillis = breakMinutes * 60 * 1000L
 
         breakTimer = object : CountDownTimer(breakMillis, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                // Optional: could broadcast progress if you want a countdown UI
-            }
-
+            override fun onTick(millisUntilFinished: Long) {}
             override fun onFinish() {
                 isBreakActive = false
                 Log.d("AppMonitoringService", "Break finished.")
@@ -135,6 +151,7 @@ class AppMonitoringService : Service() {
         super.onDestroy()
         serviceScope.cancel()
         breakTimer?.cancel()
+        sessionTimer?.cancel()
         Log.d("AppMonitoringService", "Service has been destroyed.")
     }
 
@@ -161,6 +178,7 @@ class AppMonitoringService : Service() {
             time - 1000 * 10,
             time
         )
+
         if (appList != null && appList.isNotEmpty()) {
             val sortedMap: SortedMap<Long, String> = TreeMap()
             for (usageStats in appList) {
@@ -170,7 +188,7 @@ class AppMonitoringService : Service() {
                 currentApp = sortedMap[sortedMap.lastKey()]
             }
         }
+
         return currentApp
     }
 }
-
