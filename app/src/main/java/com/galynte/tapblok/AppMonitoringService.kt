@@ -114,7 +114,8 @@ class AppMonitoringService : Service() {
         if (durationMinutes > 0) {
             prefs.edit {
                 putLong("session_start_timestamp", System.currentTimeMillis())
-            }.apply()
+                apply()
+            }
 
             val durationMillis = durationMinutes * 60 * 1000L
             sessionTimer = object : CountDownTimer(durationMillis, 1000) {
@@ -187,6 +188,7 @@ class AppMonitoringService : Service() {
                 currentApp = sortedMap[sortedMap.lastKey()]
             }
         }
+
         return currentApp
     }
 }
