@@ -4,6 +4,14 @@ TapBlok is a digital wellbeing and productivity tool for Android designed to hel
 
 The app is built entirely in Kotlin and utilizes modern Android development practices, including Jetpack Compose for the UI, Room for local persistence, and Coroutines for asynchronous operations.
 
+## Releases
+
+Coming Soon!
+
+<a href="https://play.google.com/store/apps/details?id=com.galynte.tapblok"><img alt="Get it on Google Play" height="80" src="/docs/assets/images/playstore_badge.png"></a>
+<a href="https://github.com/Galynte/TapBlok/releases"><img alt="Get it on GitHub" height="80" src="/docs/assets/images/github_badge.png"></a>
+
+
 ## Screenshots
 
 | **Privacy Notice** | **Application** | **Application Blocked** |
