@@ -1,5 +1,7 @@
 # TapBlok
 
+TapBlok — open‑source alternative to Brick and Bloom
+
 TapBlok is a digital wellbeing and productivity tool for Android designed to help users regain control over their screen time. Our core philosophy is to create intentional friction. By requiring a physical action (scanning an NFC tag or QR code) to disable a focus session, we make it more difficult for users to impulsively bypass their own productivity goals.
 
 The app is built entirely in Kotlin and utilizes modern Android development practices, including Jetpack Compose for the UI, Room for local persistence, and Coroutines for asynchronous operations.
@@ -52,3 +54,7 @@ The application is composed of several key components that work together to prov
 * **Session Control (NFC & QR Code):**
     * **NFC:** The `NfcWriteActivity` allows users to write a custom MIME type to a tag. The headless `NfcHandlerActivity` listens for this tag and toggles the monitoring service.
     * **QR Code:** The `QrCodeActivity` generates and displays a unique QR code. The main activity handles scanning this code to toggle the monitoring service.
+
+## Disclaimer
+
+All product names, trademarks, and registered trademarks are property of their respective owners.
