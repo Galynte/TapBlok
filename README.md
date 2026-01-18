@@ -14,9 +14,9 @@ Coming Soon!
 
 ## Screenshots
 
-| **Privacy Notice** | **Application** | **Application Blocked** |
-| :-------------: | :-------------: | :-------------: |
-| <img width="400" alt="app_privacy_notice" src="docs\assets\images\app_privacy_notice.png" /> | <img width="400" alt="app_active" src="docs\assets\images\app_active.png" /> | <img width="400" alt="app_blocked" src="docs\assets\images\app_blocked.png" />  |
+| **Privacy Notice** | **Application** | **Settings** | **Application Blocked** |
+| :-------------: | :-------------: | :-------------: | :-------------: |
+| <img width="400" alt="app_privacy_notice" src="docs\assets\images\app_privacy_notice.png" /> | <img width="400" alt="app_active" src="docs\assets\images\app_active.png" /> | <img width="400" alt="app_active" src="docs\assets\images\app_settings.png" /> | <img width="400" alt="app_blocked" src="docs\assets\images\app_blocked.png" />  |
 
 ---
 ## Core Features
@@ -29,6 +29,7 @@ Coming Soon!
     * **NFC Tag:** Scanning a pre-written NFC tag toggles the service.  Generic NFC writable (e.g. NFC 215) tags may be used.
     * **QR Code:** Scanning a unique QR code toggles the service.
     * **App Shortcut:** Long-pressing the app icon reveals a "Start Session" shortcut that starts monitoring instantly without opening the app.
+* **Automatic Timeout:** An automatic timeout duration is available in the settings menu. When enabled this will automatically disable monitoring after the set duration.  This does not require the user to rescan the NFC tag, QR code, or activate the Emergency Override to disable the service after the set duration.
 * **Emergency Override:** A "60-Second Hold" button is available on the main screen during an active session. Holding it for the full duration provides a "break glass" option to stop the service if the NFC tag or QR code is lost.
 * **Blocking Screen:** When a user attempts to open a blocked app, an overlay is displayed on top of it. The back button is overridden to send the user to the home screen, preventing a common bypass loophole.
 * **Break System:** When blocked, a user can take a break (5 min, 15min, 30 min). They are allotted 3 breaks per focus session. The break counter is reset every time a new session starts.
