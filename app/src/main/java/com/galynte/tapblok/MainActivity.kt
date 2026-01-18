@@ -132,13 +132,16 @@ fun MainScreen() {
                 if (isServiceRunning && sessionDurationMinutes > 0) {
                     val startMs = prefsNow.getLong("session_start_timestamp", 0L)
                     if (startMs > 0) {
+                        // normal calculation
                         val elapsedMs = System.currentTimeMillis() - startMs
                         val totalMs = sessionDurationMinutes * 60_000L
                         val remainingMs = (totalMs - elapsedMs).coerceAtLeast(0)
                         remainingMinutes = (remainingMs / 60_000L).toInt().coerceAtLeast(0)
                     } else {
-                        remainingMinutes = sessionDurationMinutes
+                        // Fallback when timestamp not yet written
+                        remainingMinutes = sessionDurationMinutes   // show full duration as optimistic default
                     }
+                }
                 } else {
                     remainingMinutes = 0
                 }
