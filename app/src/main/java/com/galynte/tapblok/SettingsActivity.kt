@@ -1,4 +1,5 @@
 package com.galynte.tapblok
+
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
@@ -18,6 +19,7 @@ import com.galynte.tapblok.ui.theme.TapBlokTheme
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ChevronRight
+
 class SettingsActivity : ComponentActivity() {
     companion object {
         private const val PREF_ENABLE_QR_CODE = "enable_qr_code"
