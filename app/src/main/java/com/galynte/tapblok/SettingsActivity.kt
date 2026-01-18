@@ -168,7 +168,7 @@ fun SettingsScreen(
                 supportingContent = {
                     Column {
                         Text(
-                            text = "Automatically stop monitoring after selected time",
+                            text = "Automatically stop monitoring after selected time duration",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier.padding(bottom = 12.dp)
