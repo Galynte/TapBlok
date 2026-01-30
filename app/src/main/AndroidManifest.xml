@@ -124,5 +124,8 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <!-- explicitly allow YouTube or other protected apps -->
+        <package android:name="com.google.android.youtube" />
+        <package android:name="com.google.android.apps.youtube.kids" />
     </queries>
 </manifest>
