@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.galynte.tapblok.ui.theme.TapBlokTheme
 
 class PrivacyExplanationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,14 +28,19 @@ class PrivacyExplanationActivity : ComponentActivity() {
         }
 
         setContent {
-            MaterialTheme {
-                PrivacyScreen(
-                    onAccept = {
-                        prefs.edit().putBoolean("privacy_accepted", true).apply()
-                        startActivity(Intent(this@PrivacyExplanationActivity, MainActivity::class.java))
-                        finish()
-                    }
-                )
+            TapBlokTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.background
+                ) {
+                    PrivacyScreen(
+                        onAccept = {
+                            prefs.edit().putBoolean("privacy_accepted", true).apply()
+                            startActivity(Intent(this@PrivacyExplanationActivity, MainActivity::class.java))
+                            finish()
+                        }
+                    )
+                }
             }
         }
     }
@@ -56,7 +62,8 @@ fun PrivacyScreen(onAccept: () -> Unit) {
             Text(
                 text = "Your Privacy Matters",
                 fontSize = 28.sp,
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -64,7 +71,8 @@ fun PrivacyScreen(onAccept: () -> Unit) {
             Text(
                 text = "TapBlok needs special permissions to work, but we take your privacy seriously.",
                 fontSize = 18.sp,
-                lineHeight = 28.sp
+                lineHeight = 28.sp,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -74,7 +82,12 @@ fun PrivacyScreen(onAccept: () -> Unit) {
                 elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Text("What permissions we need and why:", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                    Text(
+                        "What permissions we need and why:",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                     Spacer(modifier = Modifier.height(12.dp))
 
                     PermissionItem(
@@ -105,7 +118,8 @@ fun PrivacyScreen(onAccept: () -> Unit) {
                         "• We cannot see your screen content, passwords, or messages\n" +
                         "• You can revoke permissions anytime in Settings",
                 fontSize = 16.sp,
-                lineHeight = 26.sp
+                lineHeight = 26.sp,
+                color = MaterialTheme.colorScheme.onBackground
             )
         }
 
@@ -114,7 +128,10 @@ fun PrivacyScreen(onAccept: () -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary
+            )
         ) {
             Text("I Understand – Continue", fontSize = 18.sp)
         }
@@ -124,7 +141,16 @@ fun PrivacyScreen(onAccept: () -> Unit) {
 @Composable
 fun PermissionItem(title: String, description: String) {
     Column(modifier = Modifier.padding(vertical = 8.dp)) {
-        Text(title, fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-        Text(description, fontSize = 14.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            text = title,
+            fontWeight = FontWeight.SemiBold,
+            fontSize = 16.sp,
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        Text(
+            text = description,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
     }
 }
