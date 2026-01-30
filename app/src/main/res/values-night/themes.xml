@@ -1,0 +1,4 @@
+<resources>
+    <!-- Night variant – usually empty when using DayNight -->
+    <style name="Theme.TapBlok" parent="Theme.Material3.DayNight.NoActionBar" />
+</resources>

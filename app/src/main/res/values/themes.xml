@@ -1,5 +1,9 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-
-    <style name="Theme.TapBlok" parent="android:Theme.Material.Light.NoActionBar" />
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme -->
+    <style name="Theme.TapBlok" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Optional: Customize if you want to override dynamic colors -->
+        <!-- <item name="colorPrimary">@color/purple_40</item> -->
+        <!-- <item name="colorPrimaryVariant">@color/purple_700</item> -->
+        <!-- <item name="colorOnPrimary">@color/white</item> -->
+    </style>
 </resources>
