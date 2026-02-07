@@ -8,8 +8,6 @@ The app is built entirely in Kotlin and utilizes modern Android development prac
 
 ## Releases
 
-Coming Soon!
-
 <a href="https://play.google.com/store/apps/details?id=com.galynte.tapblok"><img alt="Get it on Google Play" height="80" src="/docs/assets/images/playstore_badge.png"></a>
 <a href="https://github.com/Galynte/TapBlok/releases"><img alt="Get it on GitHub" height="80" src="/docs/assets/images/github_badge.png"></a>
 
