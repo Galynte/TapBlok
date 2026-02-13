@@ -42,7 +42,11 @@ data class AppInfo(
     var isSelected: Boolean = false
 )
 
-class AppSelectionViewModel(private val blockedAppDao: BlockedAppDao, private val application: Application) : ViewModel() {
+class AppSelectionViewModel(
+    private val blockedAppDao: BlockedAppDao,
+    private val application: Application
+) : ViewModel() {
+
     private val _apps = MutableStateFlow<List<AppInfo>>(emptyList())
     val apps: StateFlow<List<AppInfo>> = _apps
 
@@ -75,18 +79,23 @@ class AppSelectionViewModel(private val blockedAppDao: BlockedAppDao, private va
 
             blockedAppDao.getAllBlockedApps().collect { blockedApps ->
                 val blockedAppPackages = blockedApps.map { it.packageName }.toSet()
-                val appList = allApps.mapNotNull { app ->
-                    val packageName = app.activityInfo.packageName
-                    if (packageName == application.packageName || excludedPackages.contains(packageName)) {
-                        return@mapNotNull null
+
+                val appList = allApps
+                    .mapNotNull { resolveInfo ->
+                        val packageName = resolveInfo.activityInfo.packageName
+                        if (packageName == application.packageName || excludedPackages.contains(packageName)) {
+                            return@mapNotNull null
+                        }
+
+                        AppInfo(
+                            appName = resolveInfo.loadLabel(pm).toString(),
+                            packageName = packageName,
+                            icon = resolveInfo.loadIcon(pm),
+                            isSelected = blockedAppPackages.contains(packageName)
+                        )
                     }
-                    AppInfo(
-                        appName = app.loadLabel(pm).toString(),
-                        packageName = packageName,
-                        icon = app.loadIcon(pm),
-                        isSelected = blockedAppPackages.contains(packageName)
-                    )
-                }.sortedBy { it.appName.lowercase() }
+                    .distinctBy { it.packageName }           // Prevents duplicates
+                    .sortedBy { it.appName.lowercase() }
 
                 _apps.value = appList
             }
@@ -117,8 +126,10 @@ class AppSelectionViewModel(private val blockedAppDao: BlockedAppDao, private va
     }
 }
 
-class AppSelectionViewModelFactory(private val application: Application, private val blockedAppDao: BlockedAppDao) :
-    ViewModelProvider.Factory {
+class AppSelectionViewModelFactory(
+    private val application: Application,
+    private val blockedAppDao: BlockedAppDao
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(AppSelectionViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
@@ -129,6 +140,7 @@ class AppSelectionViewModelFactory(private val application: Application, private
 }
 
 class AppSelectionActivity : ComponentActivity() {
+
     private val viewModel: AppSelectionViewModel by viewModels {
         AppSelectionViewModelFactory(
             application,
@@ -142,16 +154,17 @@ class AppSelectionActivity : ComponentActivity() {
         setContent {
             TapBlokTheme {
                 val appList by viewModel.apps.collectAsState()
+
                 Scaffold(
                     topBar = {
                         TopAppBar(
                             title = { Text("Select Apps to Block") },
                             navigationIcon = {
                                 IconButton(onClick = { finish() }) {
-                                    // --- START OF CHANGES ---
-                                    // Using the new AutoMirrored icon
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                                    // --- END OF CHANGES ---
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.ArrowBack,
+                                        contentDescription = "Back"
+                                    )
                                 }
                             },
                             actions = {
@@ -190,7 +203,10 @@ fun AppSelectionScreen(
     )
 
     LazyColumn(modifier = modifier.padding(all = 8.dp)) {
-        items(apps, key = { it.packageName }) { app ->
+        items(
+            items = apps,
+            key = { it.packageName }   // packageName is guaranteed unique
+        ) { app ->
             AppListItem(
                 app = app,
                 onCheckedChange = { isSelected ->
@@ -220,13 +236,17 @@ fun AppListItem(
             contentDescription = "${app.appName} icon",
             modifier = Modifier.size(48.dp)
         )
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Text(
             text = app.appName,
             style = MaterialTheme.typography.bodyLarge,
             modifier = Modifier.weight(1f)
         )
+
         Spacer(modifier = Modifier.width(16.dp))
+
         Checkbox(
             checked = app.isSelected,
             onCheckedChange = onCheckedChange,
@@ -234,4 +254,3 @@ fun AppListItem(
         )
     }
 }
-
