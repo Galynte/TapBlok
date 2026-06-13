@@ -5,8 +5,10 @@ import android.content.Intent
 import android.nfc.NdefMessage
 import android.nfc.NfcAdapter
 import android.os.Bundle
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
+import androidx.core.content.IntentCompat
 // ADD THIS IMPORT STATEMENT
 import com.galynte.tapblok.isServiceRunning
 
@@ -20,9 +22,11 @@ class NfcHandlerActivity : Activity() {
 
     private fun handleNfcIntent() {
         if (NfcAdapter.ACTION_NDEF_DISCOVERED == intent.action) {
-            val messages = intent.getParcelableArrayExtra(NfcAdapter.EXTRA_NDEF_MESSAGES)
-            if (messages != null) {
-                val ndefMessage = messages[0] as NdefMessage
+            val messages = IntentCompat.getParcelableArrayExtra(intent, NfcAdapter.EXTRA_NDEF_MESSAGES, Parcelable::class.java)
+                ?.mapNotNull { it as? NdefMessage }
+                ?.toTypedArray()
+            if (!messages.isNullOrEmpty()) {
+                val ndefMessage = messages[0]
                 val record = ndefMessage.records[0]
                 val payload = String(record.payload)
 
