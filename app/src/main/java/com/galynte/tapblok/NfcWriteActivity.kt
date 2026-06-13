@@ -23,6 +23,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.core.content.IntentCompat
 import com.galynte.tapblok.ui.theme.TapBlokTheme
 import java.io.IOException
 
@@ -82,7 +83,7 @@ class NfcWriteActivity : ComponentActivity() {
     // This method is called when an NFC tag is detected while the activity is in the foreground
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        val tag: Tag? = intent.getParcelableExtra(NfcAdapter.EXTRA_TAG)
+        val tag: Tag? = IntentCompat.getParcelableExtra(intent, NfcAdapter.EXTRA_TAG, Tag::class.java)
         if (tag != null && ndefMessage != null) {
             writeNdefMessageToTag(ndefMessage!!, tag)
             finish()
