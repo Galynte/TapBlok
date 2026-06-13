@@ -10,15 +10,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
+import com.galynte.tapblok.ui.components.TapBlokScaffold
 import com.galynte.tapblok.ui.theme.TapBlokTheme
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
 
 class SettingsActivity : ComponentActivity() {
     companion object {
@@ -71,7 +70,6 @@ class SettingsActivity : ComponentActivity() {
         }
     }
 }
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SettingsScreen(
     onBackClick: () -> Unit,
@@ -95,17 +93,9 @@ fun SettingsScreen(
         localBreakDurationMinutes = breakDurationMinutes
         localMonitoringDurationMinutes = monitoringDurationMinutes
     }
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Settings") },
-                navigationIcon = {
-                    IconButton(onClick = onBackClick) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                    }
-                }
-            )
-        }
+    TapBlokScaffold(
+        title = "Settings",
+        onBackClick = onBackClick
     ) { paddingValues ->
         Column(
             modifier = Modifier

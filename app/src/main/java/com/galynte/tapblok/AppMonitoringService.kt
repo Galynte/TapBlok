@@ -1,6 +1,5 @@
 package com.galynte.tapblok
 
-import android.app.AppOpsManager
 import android.app.PendingIntent
 import android.app.Service
 import android.app.usage.UsageStatsManager
@@ -52,6 +51,7 @@ class AppMonitoringService : Service() {
 
         val prefs = getSharedPreferences("app_prefs", MODE_PRIVATE)
         prefs.edit {
+            putBoolean("is_monitoring_active", true)
             putInt("breaks_remaining", 3)
             putInt("blocked_app_attempts", 0)
         }
@@ -80,7 +80,7 @@ class AppMonitoringService : Service() {
             Log.d("AppMonitoringService", "Initial loaded blocked apps from DB: $blockedApps")
 
             while (isActive) {
-                if (!hasUsageStatsPermission() || !Settings.canDrawOverlays(localContext)) {
+                if (!hasUsageStatsPermission(this) || !Settings.canDrawOverlays(localContext)) {
                     Log.e("AppMonitoringService", "Permissions revoked. Stopping service.")
                     stopSelf()
                     break
@@ -149,6 +149,10 @@ class AppMonitoringService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
+        // Clear the active flag so UI checks (isServiceRunning) see the correct state.
+        getSharedPreferences("app_prefs", MODE_PRIVATE).edit {
+            putBoolean("is_monitoring_active", false)
+        }
         serviceScope.cancel()
         breakTimer?.cancel()
         sessionTimer?.cancel()
@@ -157,16 +161,6 @@ class AppMonitoringService : Service() {
 
     override fun onBind(intent: Intent): IBinder? {
         return null
-    }
-
-    private fun hasUsageStatsPermission(): Boolean {
-        val appOps = getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-        val mode = appOps.checkOpNoThrow(
-            AppOpsManager.OPSTR_GET_USAGE_STATS,
-            android.os.Process.myUid(),
-            packageName
-        )
-        return mode == AppOpsManager.MODE_ALLOWED
     }
 
     private fun getForegroundApp(): String? {

@@ -12,8 +12,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -29,6 +27,7 @@ import androidx.lifecycle.viewModelScope
 import coil3.compose.rememberAsyncImagePainter
 import com.galynte.tapblok.database.BlockedApp
 import com.galynte.tapblok.database.BlockedAppDao
+import com.galynte.tapblok.ui.components.TapBlokScaffold
 import com.galynte.tapblok.ui.theme.TapBlokTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -148,34 +147,22 @@ class AppSelectionActivity : ComponentActivity() {
         )
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TapBlokTheme {
                 val appList by viewModel.apps.collectAsState()
 
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Select Apps to Block") },
-                            navigationIcon = {
-                                IconButton(onClick = { finish() }) {
-                                    Icon(
-                                        Icons.AutoMirrored.Filled.ArrowBack,
-                                        contentDescription = "Back"
-                                    )
-                                }
-                            },
-                            actions = {
-                                TextButton(onClick = { viewModel.selectAllApps() }) {
-                                    Text("Select All")
-                                }
-                                TextButton(onClick = { viewModel.unselectAllApps() }) {
-                                    Text("Unselect All")
-                                }
-                            }
-                        )
+                TapBlokScaffold(
+                    title = "Select Apps to Block",
+                    onBackClick = { finish() },
+                    actions = {
+                        TextButton(onClick = { viewModel.selectAllApps() }) {
+                            Text("Select All")
+                        }
+                        TextButton(onClick = { viewModel.unselectAllApps() }) {
+                            Text("Unselect All")
+                        }
                     }
                 ) { padding ->
                     AppSelectionScreen(

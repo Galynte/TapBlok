@@ -13,6 +13,9 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -30,9 +33,6 @@ jobs:
 
       - name: Setup Gradle (with caching)
         uses: gradle/actions/setup-gradle@v6
-
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
 
       - name: Decode signing keystore
         run: |
