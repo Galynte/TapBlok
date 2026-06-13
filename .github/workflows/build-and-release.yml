@@ -118,7 +118,8 @@ jobs:
       # The app includes native libs via androidx.graphics-path (transitive from Compose/Material).
       # We produce a symbols zip from the build intermediates so it can be uploaded alongside the AAB
       # in Play Console (under the AAB's "..." menu > Upload native debug symbols) to clear the warning
-      # and get symbolicated native crashes/ANRs. See app/build.gradle.kts for ndk.debugSymbolLevel.
+      # and get symbolicated native crashes/ANRs. The zip is also attached directly to the GitHub release.
+      # See app/build.gradle.kts for ndk.debugSymbolLevel.
       - name: Create native debug symbols zip
         run: |
           set -e
@@ -163,7 +164,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload APK + AAB to the Release
+      - name: Upload APK + AAB + Native Debug Symbols to the Release
         if: startsWith(github.ref, 'refs/tags/')
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -175,15 +176,22 @@ jobs:
 
           APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-*.apk" | head -n1)
           AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*.aab" | head -n1)
+          SYM_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*-native-debug-symbols.zip" | head -n1)
 
           if [[ -z "$APK_FILE" || -z "$AAB_FILE" ]]; then
-            echo "ERROR: Artifact not found!"
+            echo "ERROR: APK or AAB not found!"
             exit 1
           fi
 
           echo "Uploading to release $TAG"
           echo "APK: $APK_FILE"
           echo "AAB: $AAB_FILE"
+          if [[ -n "$SYM_FILE" ]]; then
+            echo "Native symbols: $SYM_FILE"
+          fi
 
           gh release upload "$TAG" "$APK_FILE" --clobber
           gh release upload "$TAG" "$AAB_FILE" --clobber
+          if [[ -n "$SYM_FILE" ]]; then
+            gh release upload "$TAG" "$SYM_FILE" --clobber
+          fi
