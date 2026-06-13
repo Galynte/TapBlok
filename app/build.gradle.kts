@@ -7,10 +7,6 @@ plugins {
 android {
     namespace = "com.galynte.tapblok"
     compileSdk = 37
-    // Pinning NDK ensures consistent debug symbol processing (strip + metadata extraction)
-    // for the native libs that ship in transitive dependencies (e.g. androidx.graphics-path).
-    // Required in combination with `ndk.debugSymbolLevel` below for reliable Play symbols.
-    ndkVersion = "28.0.12916984"
 
     defaultConfig {
         applicationId = "com.galynte.tapblok"

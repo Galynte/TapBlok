@@ -174,7 +174,6 @@ jobs:
 
           APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-*.apk" | head -n1)
           AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*.aab" | head -n1)
-          SYMBOLS_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*-native-debug-symbols.zip" | head -n1 || true)
 
           if [[ -z "$APK_FILE" || -z "$AAB_FILE" ]]; then
             echo "ERROR: Artifact not found!"
@@ -184,12 +183,6 @@ jobs:
           echo "Uploading to release $TAG"
           echo "APK: $APK_FILE"
           echo "AAB: $AAB_FILE"
-          if [[ -n "$SYMBOLS_FILE" ]]; then
-            echo "SYMBOLS: $SYMBOLS_FILE"
-          fi
 
           gh release upload "$TAG" "$APK_FILE" --clobber
           gh release upload "$TAG" "$AAB_FILE" --clobber
-          if [[ -n "$SYMBOLS_FILE" ]]; then
-            gh release upload "$TAG" "$SYMBOLS_FILE" --clobber || echo "Note: symbols upload skipped or failed (non-fatal)"
-          fi
