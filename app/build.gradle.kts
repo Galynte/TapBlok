@@ -7,10 +7,6 @@ plugins {
 android {
     namespace = "com.galynte.tapblok"
     compileSdk = 37
-    // Pinning NDK ensures consistent debug symbol processing (strip + metadata extraction)
-    // for the native libs that ship in transitive dependencies (e.g. androidx.graphics-path).
-    // Required in combination with `ndk.debugSymbolLevel` below for reliable Play symbols.
-    ndkVersion = "28.0.12916984"
 
     defaultConfig {
         applicationId = "com.galynte.tapblok"
@@ -41,16 +37,6 @@ android {
 
     signingConfigs {
         getByName("debug") { }  // This registers/acknowledges the debug config (empty is fine)
-        create("release") {
-            // Allows `.\gradlew bundleRelease` / `assembleRelease` to work out-of-the-box locally
-            // (signs with the standard debug keystore). This is only for local testing of release
-            // builds. Real production builds in CI override this via injected signing properties
-            // (see .github/workflows/build-and-release.yml).
-            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
-        }
     }
 
     buildTypes {
@@ -63,16 +49,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-
-            signingConfig = signingConfigs.getByName("release")
-
-            // Include native debug symbols (from androidx.graphics-path etc.) inside the AAB.
-            // This eliminates the Play Console warning about missing debug symbols for native code
-            // and enables better crash/ANR symbolication in Play Console.
-            // See: https://developer.android.com/build/include-native-symbols
-            ndk {
-                debugSymbolLevel = "FULL"
-            }
         }
         debug {
             applicationIdSuffix = ".debug"
