@@ -6,8 +6,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -20,6 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
+import com.galynte.tapblok.ui.components.TapBlokScaffold
 import com.galynte.tapblok.ui.theme.TapBlokTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
@@ -33,22 +32,13 @@ class QrCodeActivity : ComponentActivity() {
         const val QR_CODE_CONTENT = "TAPBLOK_TOGGLE"
     }
 
-    @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             TapBlokTheme {
-                Scaffold(
-                    topBar = {
-                        TopAppBar(
-                            title = { Text("Your QR Code") },
-                            navigationIcon = {
-                                IconButton(onClick = { finish() }) {
-                                    Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "Back")
-                                }
-                            }
-                        )
-                    }
+                TapBlokScaffold(
+                    title = "Your QR Code",
+                    onBackClick = { finish() }
                 ) { padding ->
                     QrCodeScreen(
                         modifier = Modifier.padding(padding),

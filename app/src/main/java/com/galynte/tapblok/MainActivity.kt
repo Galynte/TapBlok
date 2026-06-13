@@ -1,7 +1,6 @@
 package com.galynte.tapblok
 
 import android.Manifest
-import android.app.AppOpsManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -46,17 +45,10 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-private fun hasUsageStatsPermission(context: Context): Boolean {
-    val appOps = context.getSystemService(Context.APP_OPS_SERVICE) as AppOpsManager
-    val mode = appOps.checkOpNoThrow(
-        AppOpsManager.OPSTR_GET_USAGE_STATS,
-        android.os.Process.myUid(),
-        context.packageName
-    )
-    return mode == AppOpsManager.MODE_ALLOWED
-}
-
 private const val PREF_ENABLE_QR_CODE = "enable_qr_code"
+
+private const val EMERGENCY_HOLD_DURATION_MS = 60_000L
+private const val EMERGENCY_HOLD_SECONDS = 60
 
 @Composable
 fun MainScreen() {
@@ -157,7 +149,7 @@ fun MainScreen() {
     LaunchedEffect(isHolding) {
         if (isHolding) {
             val startTime = System.currentTimeMillis()
-            val duration = 60000L
+            val duration = EMERGENCY_HOLD_DURATION_MS
             while (isHolding && System.currentTimeMillis() - startTime < duration) {
                 holdProgress = (System.currentTimeMillis() - startTime) / duration.toFloat()
                 delay(50)
@@ -280,7 +272,7 @@ fun MainScreen() {
                 if (isServiceRunning) {
                     Spacer(modifier = Modifier.height(32.dp))
                     Text(
-                        text = "Press and hold for 60 seconds to force stop",
+                        text = "Press and hold for $EMERGENCY_HOLD_SECONDS seconds to force stop",
                         style = MaterialTheme.typography.bodySmall,
                         textAlign = TextAlign.Center
                     )

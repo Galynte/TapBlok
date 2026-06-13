@@ -13,6 +13,9 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.ref }}
+      cancel-in-progress: true
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
@@ -29,32 +32,29 @@ jobs:
           java-version: '17'
 
       - name: Setup Gradle (with caching)
-        uses: gradle/actions/setup-gradle@v4
+        uses: gradle/actions/setup-gradle@v6
 
-      - name: Make gradlew executable
-        run: chmod +x ./gradlew
+      - name: Decode signing keystore
+        run: |
+          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/upload-keystore.jks
 
       # === BUILD SIGNED APK ===
-      - name: Build unsigned release APK
-        run: ./gradlew assembleRelease
-
-      - name: Sign APK with production key
-        id: sign_apk
-        uses: kevin-david/zipalign-sign-android-release@v2
-        with:
-          releaseDirectory: app/build/outputs/apk/release
-          signingKeyBase64: ${{ secrets.SIGNING_KEY }}
-          alias: ${{ secrets.SIGNING_ALIAS }}
-          keyStorePassword: ${{ secrets.SIGNING_STORE_PASSWORD }}
-          keyPassword: ${{ secrets.SIGNING_KEY_PASSWORD }}
-          zipAlign: true
+      - name: Build signed release APK
         env:
-          BUILD_TOOLS_VERSION: "36.0.0"
+          KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.SIGNING_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+        run: |
+          ./gradlew assembleRelease \
+            -Pandroid.injected.signing.store.file=$(pwd)/app/upload-keystore.jks \
+            -Pandroid.injected.signing.store.password=$KEYSTORE_PASSWORD \
+            -Pandroid.injected.signing.key.alias=$KEY_ALIAS \
+            -Pandroid.injected.signing.key.password=$KEY_PASSWORD
 
       - name: Rename signed APK
         run: |
           cd app/build/outputs/apk/release
-          SIGNED_FILE="app-release-unsigned-signed.apk"
+          SIGNED_FILE="app-release.apk"
 
           if [[ ! -f "$SIGNED_FILE" ]]; then
             echo "ERROR: Expected signed file $SIGNED_FILE not found!"
@@ -73,16 +73,12 @@ jobs:
           echo "Successfully renamed APK to $NEW_NAME"
 
       - name: Upload signed APK as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: TapBlok-apk
           path: app/build/outputs/apk/release/TapBlok-*.apk
 
       # === BUILD SIGNED AAB ===
-      - name: Decode signing keystore
-        run: |
-          echo "${{ secrets.SIGNING_KEY }}" | base64 -d > app/upload-keystore.jks
-
       - name: Build signed Release AAB
         env:
           KEYSTORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
@@ -108,7 +104,7 @@ jobs:
           echo "Successfully renamed AAB to $NEW_NAME"
 
       - name: Upload signed AAB as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: TapBlok-aab
           path: app/build/outputs/bundle/release/TapBlok-*.aab
@@ -143,7 +139,7 @@ jobs:
           ls -l app/build/outputs/bundle/release/*.zip || true
 
       - name: Upload native debug symbols as artifact
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: TapBlok-native-debug-symbols
           path: app/build/outputs/bundle/release/*-native-debug-symbols.zip
