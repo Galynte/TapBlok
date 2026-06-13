@@ -40,10 +40,9 @@ android {
 
         // Only create a 'release' signingConfig (using the standard debug keystore) if the file exists.
         // This allows easy local `./gradlew bundleRelease` and `assembleRelease` on developer machines
-        // (after the first debug build has created ~/.android/debug.keystore).
-        // On GitHub Actions CI there is no such file, so we do NOT create the config — this keeps
-        // the "Build unsigned release APK" step working and prevents validateSigningRelease failures.
-        // The AAB build in CI continues to use injected signing properties with the real keystore.
+        // (after the first debug build has created ~/.android/debug.keystore) using debug keys for release variant.
+        // On GitHub Actions CI, release APK and AAB signing is done via Gradle property injection
+        // (android.injected.signing.*) from secrets; the conditional release signingConfig is not created.
         val debugKeystore = file(System.getProperty("user.home") + "/.android/debug.keystore")
         if (debugKeystore.exists()) {
             create("release") {
@@ -67,7 +66,7 @@ android {
             )
 
             // Only wire up the release signing config if it was created above (i.e. the debug keystore existed).
-            // This keeps CI happy when building the "unsigned" release APK.
+            // This is for local dev convenience only; CI uses injected signing properties for release builds.
             signingConfigs.findByName("release")?.let {
                 signingConfig = it
             }
