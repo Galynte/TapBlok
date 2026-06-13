@@ -37,6 +37,22 @@ android {
 
     signingConfigs {
         getByName("debug") { }  // This registers/acknowledges the debug config (empty is fine)
+
+        // Only create a 'release' signingConfig (using the standard debug keystore) if the file exists.
+        // This allows easy local `./gradlew bundleRelease` and `assembleRelease` on developer machines
+        // (after the first debug build has created ~/.android/debug.keystore).
+        // On GitHub Actions CI there is no such file, so we do NOT create the config — this keeps
+        // the "Build unsigned release APK" step working and prevents validateSigningRelease failures.
+        // The AAB build in CI continues to use injected signing properties with the real keystore.
+        val debugKeystore = file(System.getProperty("user.home") + "/.android/debug.keystore")
+        if (debugKeystore.exists()) {
+            create("release") {
+                storeFile = debugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
+        }
     }
 
     buildTypes {
@@ -49,6 +65,20 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
+
+            // Only wire up the release signing config if it was created above (i.e. the debug keystore existed).
+            // This keeps CI happy when building the "unsigned" release APK.
+            signingConfigs.findByName("release")?.let {
+                signingConfig = it
+            }
+
+            // Include native debug symbols (from androidx.graphics-path etc.) inside the AAB.
+            // This eliminates the Play Console warning about missing debug symbols for native code
+            // and enables better crash/ANR symbolication in Play Console.
+            // See: https://developer.android.com/build/include-native-symbols
+            ndk {
+                debugSymbolLevel = "FULL"
+            }
         }
         debug {
             applicationIdSuffix = ".debug"

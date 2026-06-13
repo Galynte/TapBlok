@@ -13,15 +13,17 @@ on:
 jobs:
   build-and-release:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: 'temurin'
           java-version: '17'
@@ -71,7 +73,7 @@ jobs:
           echo "Successfully renamed APK to $NEW_NAME"
 
       - name: Upload signed APK as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: TapBlok-apk
           path: app/build/outputs/apk/release/TapBlok-*.apk
@@ -106,10 +108,45 @@ jobs:
           echo "Successfully renamed AAB to $NEW_NAME"
 
       - name: Upload signed AAB as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: TapBlok-aab
           path: app/build/outputs/bundle/release/TapBlok-*.aab
+
+      # === NATIVE DEBUG SYMBOLS (for Play Console AAB warning: "contains native code, upload debug symbols") ===
+      # The app includes native libs via androidx.graphics-path (transitive from Compose/Material).
+      # We produce a symbols zip from the build intermediates so it can be uploaded alongside the AAB
+      # in Play Console (under the AAB's "..." menu > Upload native debug symbols) to clear the warning
+      # and get symbolicated native crashes/ANRs. See app/build.gradle.kts for ndk.debugSymbolLevel.
+      - name: Create native debug symbols zip
+        run: |
+          set -e
+          SYMBOLS_DIR=$(find app/build/intermediates -type d -path '*merge*NativeLibs*/out/lib' | head -n1 || true)
+          if [[ -z "$SYMBOLS_DIR" ]]; then
+            # Fallbacks for different AGP layouts
+            SYMBOLS_DIR=$(find app/build/intermediates -type d -path '*merged_native_libs*/out/lib' | head -n1 || true)
+          fi
+          if [[ -z "$SYMBOLS_DIR" || ! -d "$SYMBOLS_DIR" ]]; then
+            echo "WARNING: Could not locate native libs dir for symbols. Skipping symbols zip."
+            ls -d app/build/intermediates/*native* || true
+            exit 0
+          fi
+          echo "Using native libs from: $SYMBOLS_DIR"
+          if [[ $GITHUB_REF == refs/tags/* ]]; then
+            TAG=${GITHUB_REF#refs/tags/}
+            SYM_NAME="TapBlok-${TAG}-native-debug-symbols.zip"
+          else
+            SYM_NAME="TapBlok-latest-native-debug-symbols.zip"
+          fi
+          (cd "$SYMBOLS_DIR" && zip -r "$OLDPWD/app/build/outputs/bundle/release/$SYM_NAME" .)
+          echo "Created symbols: app/build/outputs/bundle/release/$SYM_NAME"
+          ls -l app/build/outputs/bundle/release/*.zip || true
+
+      - name: Upload native debug symbols as artifact
+        uses: actions/upload-artifact@v5
+        with:
+          name: TapBlok-native-debug-symbols
+          path: app/build/outputs/bundle/release/*-native-debug-symbols.zip
 
       # === CREATE/UPDATE RELEASE WITH RICH NOTES (only on tag push) ===
       - name: Create Release with Release Drafter
