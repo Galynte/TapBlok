@@ -26,7 +26,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import coil.compose.rememberAsyncImagePainter
+import coil3.compose.rememberAsyncImagePainter
 import com.galynte.tapblok.database.BlockedApp
 import com.galynte.tapblok.database.BlockedAppDao
 import com.galynte.tapblok.ui.theme.TapBlokTheme
