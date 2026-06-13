@@ -2,6 +2,8 @@
 
 TapBlok — open‑source alternative to Brick and Bloom
 
+> **Attribution**: This project is a fork of the original [TapBlok by cajdata](https://github.com/cajdata/TapBlok), which was released under the Apache License 2.0. It includes substantial modifications, additional features (such as automatic session timeout, improved emergency override, QR code enhancements, modern Compose UI updates, CI improvements, and more), package namespace changes, and other enhancements by Galynte.
+
 TapBlok is a digital wellbeing and productivity tool for Android designed to help users regain control over their screen time. Our core philosophy is to create intentional friction. By requiring a physical action (scanning an NFC tag or QR code) to disable a focus session, we make it more difficult for users to impulsively bypass their own productivity goals.
 
 The app is built entirely in Kotlin and utilizes modern Android development practices, including Jetpack Compose for the UI, Room for local persistence, and Coroutines for asynchronous operations.
@@ -56,3 +58,11 @@ The application is composed of several key components that work together to prov
 ## Disclaimer
 
 All product names, trademarks, and registered trademarks are property of their respective owners.
+
+## License
+
+This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
+
+The original TapBlok project by cajdata is also licensed under Apache 2.0.
+
+See the [NOTICE](NOTICE) file for attribution details regarding the original work and modifications.
