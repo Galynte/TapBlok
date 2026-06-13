@@ -80,7 +80,7 @@ class AppMonitoringService : Service() {
             Log.d("AppMonitoringService", "Initial loaded blocked apps from DB: $blockedApps")
 
             while (isActive) {
-                if (!hasUsageStatsPermission(this) || !Settings.canDrawOverlays(localContext)) {
+                if (!hasUsageStatsPermission(localContext) || !Settings.canDrawOverlays(localContext)) {
                     Log.e("AppMonitoringService", "Permissions revoked. Stopping service.")
                     stopSelf()
                     break
