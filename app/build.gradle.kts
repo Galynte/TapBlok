@@ -60,11 +60,17 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-    kotlinOptions {
-        jvmTarget = "17"
-    }
+    // Using new compilerOptions DSL required by Kotlin 2.4+ / recent KGP
+    // (old kotlinOptions {} is removed)
     buildFeatures {
         compose = true
+    }
+}
+
+// New Kotlin compiler options DSL (required for Kotlin 2.4+)
+kotlin {
+    compilerOptions {
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17)
     }
 }
 
