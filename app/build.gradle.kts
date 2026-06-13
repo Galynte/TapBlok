@@ -41,15 +41,21 @@ android {
 
     signingConfigs {
         getByName("debug") { }  // This registers/acknowledges the debug config (empty is fine)
-        create("release") {
-            // Allows `.\gradlew bundleRelease` / `assembleRelease` to work out-of-the-box locally
-            // (signs with the standard debug keystore). This is only for local testing of release
-            // builds. Real production builds in CI override this via injected signing properties
-            // (see .github/workflows/build-and-release.yml).
-            storeFile = file(System.getProperty("user.home") + "/.android/debug.keystore")
-            storePassword = "android"
-            keyAlias = "androiddebugkey"
-            keyPassword = "android"
+
+        // Only create a 'release' signingConfig (using the standard debug keystore) if the file exists.
+        // This allows easy local `./gradlew bundleRelease` and `assembleRelease` on developer machines
+        // (after the first debug build has created ~/.android/debug.keystore).
+        // On GitHub Actions CI there is no such file, so we do NOT create the config — this keeps
+        // the "Build unsigned release APK" step working and prevents validateSigningRelease failures.
+        // The AAB build in CI continues to use injected signing properties with the real keystore.
+        val debugKeystore = file(System.getProperty("user.home") + "/.android/debug.keystore")
+        if (debugKeystore.exists()) {
+            create("release") {
+                storeFile = debugKeystore
+                storePassword = "android"
+                keyAlias = "androiddebugkey"
+                keyPassword = "android"
+            }
         }
     }
 
@@ -64,7 +70,11 @@ android {
                 "proguard-rules.pro"
             )
 
-            signingConfig = signingConfigs.getByName("release")
+            // Only wire up the release signing config if it was created above (i.e. the debug keystore existed).
+            // This keeps CI happy when building the "unsigned" release APK.
+            signingConfigs.findByName("release")?.let {
+                signingConfig = it
+            }
 
             // Include native debug symbols (from androidx.graphics-path etc.) inside the AAB.
             // This eliminates the Play Console warning about missing debug symbols for native code
