@@ -1,7 +1,10 @@
-# 1.1.0 (2026-10-22)
+# Tagout 1.0.0 (2026-10-22)
+
+Tagout is the name of this fork. Application id: `com.galynte.tagout`. It remains a derivative of [TapBlok by cajdata](https://github.com/cajdata/TapBlok) under Apache 2.0.
 
 ### Features
 
+* Rebrand this fork from its previous name to Tagout
 * Replace the launcher and in-app mark with original ring-and-pause artwork for this fork
 * Use a fixed teal brand palette instead of the default Material purple theme
 * Keep the emergency hold control readable as a solid button after the Compose update
@@ -12,6 +15,8 @@
 * Update Compose BOM, AndroidX, Room, Coil, AppCompat, and ZXing to current stable releases
 
 # 1.0.0 (2026-01-11)
+
+Earlier release of this fork, before the product was renamed Tagout. The links below point at this Git repository.
 
 
 ### Bug Fixes

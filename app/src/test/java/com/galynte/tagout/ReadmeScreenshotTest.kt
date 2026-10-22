@@ -1,7 +1,7 @@
 /*
  * Copyright 2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.app.AppOpsManager
 import android.content.Context
@@ -32,7 +32,7 @@ import androidx.compose.ui.test.SemanticsNodeInteraction
 import androidx.compose.ui.test.junit4.createComposeRule
 import androidx.compose.ui.test.onRoot
 import androidx.test.core.app.ApplicationProvider
-import com.galynte.tapblok.ui.theme.TapBlokTheme
+import com.galynte.tagout.ui.theme.TagoutTheme
 import com.github.takahirom.roborazzi.ExperimentalRoborazziApi
 import com.github.takahirom.roborazzi.RoborazziOptions
 import com.github.takahirom.roborazzi.RoborazziTaskType
@@ -60,7 +60,7 @@ class ReadmeScreenshotTest {
     @Test
     fun privacyNotice() {
         composeRule.setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 PrivacyScreen(onAccept = {})
             }
         }
@@ -86,7 +86,7 @@ class ReadmeScreenshotTest {
         ShadowSettings.setCanDrawOverlays(true)
 
         composeRule.setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 MainScreen()
             }
         }
@@ -96,7 +96,7 @@ class ReadmeScreenshotTest {
     @Test
     fun settings() {
         composeRule.setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 SettingsScreen(
                     onBackClick = {},
                     isMonitoringActive = false,
@@ -131,7 +131,7 @@ class ReadmeScreenshotTest {
         packageManager.setApplicationIcon("com.example.notes", notesIcon(context))
 
         composeRule.setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 BlockingScreen(
                     packageName = "com.example.notes",
                     onGoHomeClick = {},

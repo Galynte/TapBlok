@@ -1,4 +1,4 @@
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.app.Activity
 import android.content.Intent
@@ -10,7 +10,7 @@ class ShortcutHandlerActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        if (intent?.action == "com.galynte.tapblok.START_MONITORING") {
+        if (intent?.action == "com.galynte.tagout.START_MONITORING") {
             val serviceIntent = Intent(this, AppMonitoringService::class.java)
 
             // --- START OF CHANGES ---

@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.app.PendingIntent
 import android.app.Service
@@ -30,7 +30,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.app.NotificationCompat
 import androidx.core.content.edit
-import com.galynte.tapblok.database.AppDatabase
+import com.galynte.tagout.database.AppDatabase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.cancel
@@ -52,7 +52,7 @@ class AppMonitoringService : Service() {
     companion object {
         const val NOTIFICATION_ID = 1
         const val CHANNEL_ID = "app_monitoring_channel"
-        const val ACTION_START_BREAK = "com.galynte.tapblok.ACTION_START_BREAK"
+        const val ACTION_START_BREAK = "com.galynte.tagout.ACTION_START_BREAK"
     }
 
     override fun onCreate() {
@@ -84,9 +84,9 @@ class AppMonitoringService : Service() {
         )
 
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
-            .setContentTitle("TapBlok is Active")
+            .setContentTitle("Tagout is Active")
             .setContentText("App monitoring and blocking is running.")
-            .setSmallIcon(R.drawable.ic_stat_tapblok)
+            .setSmallIcon(R.drawable.ic_stat_tagout)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()

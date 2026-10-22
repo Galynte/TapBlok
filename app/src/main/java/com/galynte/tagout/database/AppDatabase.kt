@@ -1,4 +1,4 @@
-package com.galynte.tapblok.database
+package com.galynte.tagout.database
 
 import android.content.Context
 import androidx.room.Database

@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "TapBlok"
+rootProject.name = "Tagout"
 include(":app")

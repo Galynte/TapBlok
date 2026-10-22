@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.content.Intent
 import android.os.Bundle
@@ -33,7 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.galynte.tapblok.ui.theme.TapBlokTheme
+import com.galynte.tagout.ui.theme.TagoutTheme
 
 class PrivacyExplanationActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -47,7 +47,7 @@ class PrivacyExplanationActivity : ComponentActivity() {
         }
 
         setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
@@ -88,7 +88,7 @@ fun PrivacyScreen(onAccept: () -> Unit) {
             Spacer(modifier = Modifier.height(32.dp))
 
             Text(
-                text = "TapBlok needs special permissions to work, but we take your privacy seriously.",
+                text = "Tagout needs special permissions to work, but we take your privacy seriously.",
                 fontSize = 18.sp,
                 lineHeight = 28.sp,
                 color = MaterialTheme.colorScheme.onBackground
@@ -132,7 +132,7 @@ fun PrivacyScreen(onAccept: () -> Unit) {
 
             Text(
                 text = "Important:\n" +
-                        "• TapBlok runs entirely on your device\n" +
+                        "• Tagout runs entirely on your device\n" +
                         "• No data is collected, stored remotely, or shared\n" +
                         "• We cannot see your screen content, passwords, or messages\n" +
                         "• You can revoke permissions anytime in Settings",

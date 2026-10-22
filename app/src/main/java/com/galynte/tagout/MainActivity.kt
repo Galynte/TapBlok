@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.Manifest
 import android.content.Context
@@ -47,7 +47,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
-import com.galynte.tapblok.ui.theme.TapBlokTheme
+import com.galynte.tagout.ui.theme.TagoutTheme
 import com.journeyapps.barcodescanner.ScanContract
 import com.journeyapps.barcodescanner.ScanOptions
 import kotlinx.coroutines.delay
@@ -56,7 +56,7 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 MainScreen()
             }
         }
@@ -197,15 +197,15 @@ fun MainScreen() {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_tapblok_logo),
-                contentDescription = "TapBlok logo",
+                painter = painterResource(id = R.drawable.ic_tagout_logo),
+                contentDescription = "Tagout logo",
                 modifier = Modifier
                     .size(96.dp)
                     .padding(bottom = 16.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
             Text(
-                text = "TapBlok",
+                text = "Tagout",
                 style = MaterialTheme.typography.headlineLarge
             )
             Spacer(modifier = Modifier.height(32.dp))
@@ -327,7 +327,7 @@ fun MainScreen() {
                 }
             } else {
                 Text(
-                    text = "Please grant the required permissions to use TapBlok.",
+                    text = "Please grant the required permissions to use Tagout.",
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center
                 )

@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.app.AppOpsManager
 import android.app.Service

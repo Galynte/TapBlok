@@ -68,9 +68,9 @@ jobs:
 
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
-            NEW_NAME="TapBlok-${TAG}.apk"
+            NEW_NAME="Tagout-${TAG}.apk"
           else
-            NEW_NAME="TapBlok-latest.apk"
+            NEW_NAME="Tagout-latest.apk"
           fi
 
           mv "$SIGNED_FILE" "$NEW_NAME"
@@ -79,8 +79,8 @@ jobs:
       - name: Upload signed APK as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: TapBlok-apk
-          path: app/build/outputs/apk/release/TapBlok-*.apk
+          name: Tagout-apk
+          path: app/build/outputs/apk/release/Tagout-*.apk
 
       # === BUILD SIGNED AAB ===
       - name: Build signed Release AAB
@@ -101,9 +101,9 @@ jobs:
           cd app/build/outputs/bundle/release
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
-            NEW_NAME="TapBlok-${TAG}.aab"
+            NEW_NAME="Tagout-${TAG}.aab"
           else
-            NEW_NAME="TapBlok-latest.aab"
+            NEW_NAME="Tagout-latest.aab"
           fi
           mv app-release.aab "$NEW_NAME" || { echo "AAB rename failed"; exit 1; }
           echo "Successfully renamed AAB to $NEW_NAME"
@@ -111,8 +111,8 @@ jobs:
       - name: Upload signed AAB as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: TapBlok-aab
-          path: app/build/outputs/bundle/release/TapBlok-*.aab
+          name: Tagout-aab
+          path: app/build/outputs/bundle/release/Tagout-*.aab
 
       # === NATIVE DEBUG SYMBOLS (for Play Console AAB warning: "contains native code, upload debug symbols") ===
       # The app includes native libs via androidx.graphics-path (transitive from Compose/Material).
@@ -136,9 +136,9 @@ jobs:
           echo "Using native libs from: $SYMBOLS_DIR"
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG=${GITHUB_REF#refs/tags/}
-            SYM_NAME="TapBlok-${TAG}-native-debug-symbols.zip"
+            SYM_NAME="Tagout-${TAG}-native-debug-symbols.zip"
           else
-            SYM_NAME="TapBlok-latest-native-debug-symbols.zip"
+            SYM_NAME="Tagout-latest-native-debug-symbols.zip"
           fi
           (cd "$SYMBOLS_DIR" && zip -r "$OLDPWD/app/build/outputs/bundle/release/$SYM_NAME" .)
           echo "Created symbols: app/build/outputs/bundle/release/$SYM_NAME"
@@ -147,7 +147,7 @@ jobs:
       - name: Upload native debug symbols as artifact
         uses: actions/upload-artifact@v7
         with:
-          name: TapBlok-native-debug-symbols
+          name: Tagout-native-debug-symbols
           path: app/build/outputs/bundle/release/*-native-debug-symbols.zip
 
       # === CREATE/UPDATE RELEASE WITH RICH NOTES (only on tag push) ===
@@ -158,7 +158,7 @@ jobs:
         with:
           config-name: release-drafter.yml
           publish: true
-          name: "TapBlok ${{ github.ref_name }} 🚀"
+          name: "Tagout ${{ github.ref_name }} 🚀"
           tag: ${{ github.ref_name }}
           # Don't override version - let release-drafter calculate it
         env:
@@ -174,9 +174,9 @@ jobs:
           # Wait a moment for the release to be fully created
           sleep 2
 
-          APK_FILE=$(find app/build/outputs/apk/release -name "TapBlok-*.apk" | head -n1)
-          AAB_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*.aab" | head -n1)
-          SYM_FILE=$(find app/build/outputs/bundle/release -name "TapBlok-*-native-debug-symbols.zip" | head -n1)
+          APK_FILE=$(find app/build/outputs/apk/release -name "Tagout-*.apk" | head -n1)
+          AAB_FILE=$(find app/build/outputs/bundle/release -name "Tagout-*.aab" | head -n1)
+          SYM_FILE=$(find app/build/outputs/bundle/release -name "Tagout-*-native-debug-symbols.zip" | head -n1)
 
           if [[ -z "$APK_FILE" || -z "$AAB_FILE" ]]; then
             echo "ERROR: APK or AAB not found!"

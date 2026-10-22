@@ -1,4 +1,4 @@
-package com.galynte.tapblok.ui.theme
+package com.galynte.tagout.ui.theme
 
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -63,7 +63,7 @@ private val LightColorScheme = lightColorScheme(
 )
 
 @Composable
-fun TapBlokTheme(
+fun TagoutTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Fixed brand colors keep this fork visually distinct from the upstream
     // project and from whatever wallpaper palette the device happens to use.

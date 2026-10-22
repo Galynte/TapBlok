@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of TapBlok, a fork of the original project by cajdata.
+ * This file is part of Tagout, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tapblok
+package com.galynte.tagout
 
 import android.app.PendingIntent
 import android.content.Intent
@@ -43,7 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.IntentCompat
-import com.galynte.tapblok.ui.theme.TapBlokTheme
+import com.galynte.tagout.ui.theme.TagoutTheme
 import java.io.IOException
 
 class NfcWriteActivity : ComponentActivity() {
@@ -66,7 +66,7 @@ class NfcWriteActivity : ComponentActivity() {
         ndefMessage = createNdefMessage(profilePayload)
 
         setContent {
-            TapBlokTheme {
+            TagoutTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(
                         modifier = Modifier.fillMaxSize().padding(16.dp),
@@ -110,7 +110,7 @@ class NfcWriteActivity : ComponentActivity() {
     }
 
     private fun createNdefMessage(payload: String): NdefMessage {
-        val mimeType = "application/vnd.com.galynte.tapblok"
+        val mimeType = "application/vnd.com.galynte.tagout"
         val mimeRecord = NdefRecord.createMime(mimeType, payload.toByteArray(Charsets.UTF_8))
         return NdefMessage(arrayOf(mimeRecord))
     }
