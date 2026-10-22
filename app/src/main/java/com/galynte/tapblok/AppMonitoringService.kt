@@ -86,7 +86,7 @@ class AppMonitoringService : Service() {
         val notification = NotificationCompat.Builder(this, CHANNEL_ID)
             .setContentTitle("TapBlok is Active")
             .setContentText("App monitoring and blocking is running.")
-            .setSmallIcon(R.mipmap.ic_launcher)
+            .setSmallIcon(R.drawable.ic_stat_tapblok)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
             .build()

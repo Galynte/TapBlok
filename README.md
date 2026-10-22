@@ -1,68 +1,67 @@
 # TapBlok
 
-TapBlok — open‑source alternative to Brick and Bloom
+TapBlok is an Android focus app. A session stays on until you scan an NFC tag or a QR code you created, so stopping it takes a deliberate step away from the phone.
 
-> **Attribution**: This project is a fork of the original [TapBlok by cajdata](https://github.com/cajdata/TapBlok), which was released under the Apache License 2.0. It includes substantial modifications, additional features (such as automatic session timeout, improved emergency override, QR code enhancements, modern Compose UI updates, CI improvements, and more), package namespace changes, and other enhancements by Galynte.
+This repository is a fork of [TapBlok by cajdata](https://github.com/cajdata/TapBlok), which is licensed under Apache 2.0. The original copyright and license stay in place. Galynte maintains this fork, including the extra session controls and the launcher artwork. This fork is not endorsed by the original author. Details are in [NOTICE](NOTICE).
 
-TapBlok is a digital wellbeing and productivity tool for Android designed to help users regain control over their screen time. Our core philosophy is to create intentional friction. By requiring a physical action (scanning an NFC tag or QR code) to disable a focus session, we make it more difficult for users to impulsively bypass their own productivity goals.
+The app is Kotlin, with Jetpack Compose for the UI, Room for on-device storage, and coroutines for the monitoring loop.
 
-The app is built entirely in Kotlin and utilizes modern Android development practices, including Jetpack Compose for the UI, Room for local persistence, and Coroutines for asynchronous operations.
+## Get the app
 
-## Releases
-
-<a href="https://play.google.com/store/apps/details?id=com.galynte.tapblok"><img alt="Get it on Google Play" height="80" src="/docs/assets/images/playstore_badge.png"></a>
-<a href="https://github.com/Galynte/TapBlok/releases"><img alt="Get it on GitHub" height="80" src="/docs/assets/images/github_badge.png"></a>
-
+<a href="https://play.google.com/store/apps/details?id=com.galynte.tapblok"><img alt="Get it on Google Play" height="80" src="docs/assets/images/playstore_badge.png"></a>
+<a href="https://github.com/Galynte/TapBlok/releases"><img alt="Get it on GitHub" height="80" src="docs/assets/images/github_badge.png"></a>
 
 ## Screenshots
 
-| **Privacy Notice** | **Application** | **Settings** | **Application Blocked** |
-| :-------------: | :-------------: | :-------------: | :-------------: |
-| <img width="400" alt="app_privacy_notice" src="docs/assets/images/app_privacy_notice.png" /> | <img width="400" alt="app_active" src="docs/assets/images/app_active.png" /> | <img width="400" alt="app_settings" src="docs/assets/images/app_settings.png" /> | <img width="400" alt="app_blocked" src="docs/assets/images/app_blocked.png" />  |
+| Privacy notice | Home |
+| :------------: | :--: |
+| <img width="270" alt="Privacy notice" src="docs/assets/images/app_privacy_notice.png" /> | <img width="270" alt="Home screen with monitoring active" src="docs/assets/images/app_active.png" /> |
 
----
-## Core Features
+| Settings | Blocked app |
+| :------: | :---------: |
+| <img width="270" alt="Settings" src="docs/assets/images/app_settings.png" /> | <img width="270" alt="Blocked app screen" src="docs/assets/images/app_blocked.png" /> |
 
-* **App Selection:** Users can select any launchable application on their device to be included in the block list.
-* **Safety Block:** A comprehensive list of critical system apps (dialer, SMS, settings, launchers, etc.) are permanently excluded from the list to prevent users from making their device unusable.
-* **Select All / Unselect All:** Buttons in the app selection screen allow users to quickly add or remove all apps from the block list.
-* **Session Control:** A focus session can be started or stopped via multiple methods:
-    * **In-App Buttons:** A "Start Monitoring" button on the main screen.
-    * **NFC Tag:** Scanning a pre-written NFC tag toggles the service.  Generic NFC writable (e.g. NFC 215) tags may be used.
-    * **QR Code:** Scanning a unique QR code toggles the service.
-    * **App Shortcut:** Long-pressing the app icon reveals a "Start Session" shortcut that starts monitoring instantly without opening the app.
-* **Automatic Timeout:** An automatic timeout duration is available in the settings menu. When enabled this will automatically disable monitoring after the set duration.  This does not require the user to rescan the NFC tag, QR code, or activate the Emergency Override to disable the service after the set duration.
-* **Emergency Override:** A "60-Second Hold" button is available on the main screen during an active session. Holding it for the full 60 seconds provides a "break glass" option to stop the service if the NFC tag or QR code is lost.
-* **Blocking Screen:** When a user attempts to open a blocked app, an overlay is displayed on top of it. The back button is overridden to send the user to the home screen, preventing a common bypass loophole.
-* **Break System:** When blocked, a user can take a break (5 min, 15min, 30 min). They are allotted 3 breaks per focus session. The break counter is reset every time a new session starts.
-* **Attempt Counter:** The main screen displays a counter showing how many times the user has attempted to open a blocked app during the current session, providing real-time habit feedback.
+## What it does
 
----
-## Core Architecture
+* **App selection.** Choose any launchable app to block. Dialer, SMS, Settings, and launchers stay off the list so the phone cannot be locked out of essentials.
+* **Select all / clear all.** The app list can be filled or emptied in one step.
+* **Session control.** Start or stop a session from the home screen, an NFC tag (including common NTAG215 tags), a QR code, or the "Start Session" shortcut on the app icon.
+* **Automatic timeout.** Settings can end a session after 15, 30, or 60 minutes without a scan or the emergency hold.
+* **Emergency override.** During a session, holding the stop control for 60 seconds ends it if the tag or QR code is missing.
+* **Blocking screen.** Opening a blocked app shows a cover screen. Back goes home, which closes a common bypass.
+* **Breaks.** When breaks are enabled, a session includes three breaks (5, 15, or 30 minutes). The counter resets when the next session starts.
+* **Attempt counter.** The home screen counts how many times a blocked app was opened during the current session.
 
-The application is composed of several key components that work together to provide a seamless blocking experience.
+## How it works
 
-* **Permissions:** The app requires several critical permissions to function:
-    * `PACKAGE_USAGE_STATS`: Allows us to see which app is currently in the foreground.
-    * `SYSTEM_ALERT_WINDOW`: Enables us to display the blocking screen over a restricted app.
-    * `CAMERA`: Required for the QR code scanning feature.
-* **User Interface (Jetpack Compose):** The entire UI is built with Jetpack Compose. `MainActivity` manages the primary UI state, while `AppSelectionActivity` handles the list of blockable apps.
-* **Database (Room):** We use the Room Persistence Library to store the list of blocked applications.
-    * **Entity:** `BlockedApp` which contains the `packageName` of the app to be blocked.
-    * **DAO:** `BlockedAppDao` provides methods to insert, delete, and query the list of blocked apps.
-* **Monitoring Logic (AppMonitoringService):** This is the heart of the app. It's a sticky foreground service that runs a continuous loop in a coroutine. Every second, it checks the current foreground app against the list of blocked apps. If a match is found, it launches the `BlockingActivity`.
-* **Session Control (NFC & QR Code):**
-    * **NFC:** The `NfcWriteActivity` allows users to write a custom MIME type to a tag. The headless `NfcHandlerActivity` listens for this tag and toggles the monitoring service.
-    * **QR Code:** The `QrCodeActivity` generates and displays a unique QR code. The main activity handles scanning this code to toggle the monitoring service.
+* **Permissions**
+  * `PACKAGE_USAGE_STATS` — which app is in the foreground, by package name only.
+  * `SYSTEM_ALERT_WINDOW` — the blocking screen over a restricted app.
+  * `CAMERA` — optional, and only for scanning a TapBlok QR code.
+  * `NFC` — optional, and only for reading or writing a session tag.
+* **UI.** `MainActivity` is the home screen. `AppSelectionActivity` is the block list. `SettingsActivity` holds session options. `PrivacyExplanationActivity` runs once, before the home screen.
+* **Storage.** Room stores `BlockedApp` rows (package name only). `BlockedAppDao` inserts, deletes, and lists them.
+* **Monitoring.** `AppMonitoringService` is a sticky foreground service. About once a second it compares the foreground package with the block list and, on a match, opens `BlockingActivity`.
+* **NFC and QR.** `NfcWriteActivity` writes a custom MIME type to a tag. `NfcHandlerActivity` reads that tag and toggles monitoring. `QrCodeActivity` shows the code the home screen scans.
 
-## Disclaimer
+## Privacy
 
-All product names, trademarks, and registered trademarks are property of their respective owners.
+TapBlok stores its data on the device and does not send it to a server. The full policy is in [PRIVACY.md](PRIVACY.md).
+
+## Build and publish
+
+Debug build:
+
+```bash
+./gradlew assembleDebug
+```
+
+Release bundles for Google Play, including native debug symbols, are described in [PUBLISHING.md](PUBLISHING.md). Tagged releases are built by the GitHub Actions workflow.
 
 ## License
 
-This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
+Apache License 2.0. See [LICENSE](LICENSE).
 
-The original TapBlok project by cajdata is also licensed under Apache 2.0.
+The original TapBlok project by cajdata is also Apache 2.0. Attribution for that work, and for the original artwork in this fork, is in [NOTICE](NOTICE).
 
-See the [NOTICE](NOTICE) file for attribution details regarding the original work and modifications.
+Product names and trademarks belong to their respective owners.

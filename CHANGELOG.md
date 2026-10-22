@@ -1,3 +1,16 @@
+# 1.1.0 (2026-10-22)
+
+### Features
+
+* Replace the launcher and in-app mark with original ring-and-pause artwork for this fork
+* Use a fixed teal brand palette instead of the default Material purple theme
+* Keep the emergency hold control readable as a solid button after the Compose update
+
+### Maintenance
+
+* Update Android Gradle Plugin to 9.4.1, Gradle to 9.6.1, and Kotlin to 2.4.21
+* Update Compose BOM, AndroidX, Room, Coil, AppCompat, and ZXing to current stable releases
+
 # 1.0.0 (2026-01-11)
 
 

@@ -31,7 +31,6 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -197,12 +196,13 @@ fun MainScreen() {
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
+            Icon(
                 painter = painterResource(id = R.drawable.ic_tapblok_logo),
-                contentDescription = "TapBlok Logo",
+                contentDescription = "TapBlok logo",
                 modifier = Modifier
-                    .size(120.dp)
-                    .padding(bottom = 24.dp)
+                    .size(96.dp)
+                    .padding(bottom = 16.dp),
+                tint = MaterialTheme.colorScheme.primary
             )
             Text(
                 text = "TapBlok",
@@ -312,12 +312,16 @@ fun MainScreen() {
                     ) {
                         LinearProgressIndicator(
                             progress = { holdProgress },
-                            modifier = Modifier.fillMaxSize()
+                            modifier = Modifier.fillMaxSize(),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            trackColor = MaterialTheme.colorScheme.primary,
+                            gapSize = 0.dp,
+                            drawStopIndicator = {}
                         )
                         Text(
                             text = "EMERGENCY STOP",
                             modifier = Modifier.align(Alignment.Center),
-                            color = if (holdProgress > 0.5f) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.onPrimary
                         )
                     }
                 }
