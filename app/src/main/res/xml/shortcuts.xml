@@ -7,9 +7,9 @@
         android:shortcutShortLabel="@string/shortcut_start_session_short_label"
         android:shortcutLongLabel="@string/shortcut_start_session_long_label">
         <intent
-            android:action="com.galynte.tagout.START_MONITORING"
-            android:targetPackage="com.galynte.tagout"
-            android:targetClass="com.galynte.tagout.ShortcutHandlerActivity" />
+            android:action="com.galynte.tapblok.START_MONITORING"
+            android:targetPackage="com.galynte.tapblok"
+            android:targetClass="com.galynte.tapblok.ShortcutHandlerActivity" />
     </shortcut>
 </shortcuts>
 

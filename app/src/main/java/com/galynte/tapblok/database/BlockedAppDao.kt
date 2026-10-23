@@ -1,4 +1,4 @@
-package com.galynte.tagout.database
+package com.galynte.tapblok.database
 
 import androidx.room.Dao
 import androidx.room.Delete

@@ -1,4 +1,4 @@
-package com.galynte.tagout.ui.theme
+package com.galynte.tapblok.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle

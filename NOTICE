@@ -1,9 +1,9 @@
-Tagout
+TapOut
 
 Copyright 202x cajdata (original project, published as TapBlok)
 https://github.com/cajdata/TapBlok
 
-Tagout is a fork of that project, with substantial modifications, new features,
+TapOut is a fork of that project, with substantial modifications, new features,
 UI updates, build improvements, and other changes.
 
 Modifications Copyright 2025-2026 Galynte
@@ -13,7 +13,8 @@ The ring-and-pause launcher icon and in-app mark are original artwork
 added by Galynte in 2026.
 
 This fork is not endorsed by the original author. The name TapBlok identifies
-the upstream project. This derivative is published as Tagout.
+the upstream project. This derivative is published as TapOut. The Android
+application id remains com.galynte.tapblok.
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.

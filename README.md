@@ -1,14 +1,14 @@
-# Tagout
+# TapOut
 
-Tagout is an Android focus app. A session stays on until you scan an NFC tag or a QR code you created, so stopping it takes a deliberate step away from the phone.
+TapOut is an Android focus app. A session stays on until you scan an NFC tag or a QR code you created, so stopping it takes a deliberate step away from the phone.
 
-This repository is a fork of [TapBlok by cajdata](https://github.com/cajdata/TapBlok), which is licensed under Apache 2.0. The original copyright and license stay in place. Galynte maintains this fork under the name Tagout, including the extra session controls and the launcher artwork. This fork is not endorsed by the original author. Details are in [NOTICE](NOTICE).
+This repository is a fork of [TapBlok by cajdata](https://github.com/cajdata/TapBlok), which is licensed under Apache 2.0. The original copyright and license stay in place. Galynte maintains this fork under the name TapOut, including the extra session controls and the launcher artwork. This fork is not endorsed by the original author. Details are in [NOTICE](NOTICE).
 
 The app is Kotlin, with Jetpack Compose for the UI, Room for on-device storage, and coroutines for the monitoring loop.
 
 ## Get the app
 
-<a href="https://play.google.com/store/apps/details?id=com.galynte.tagout"><img alt="Get it on Google Play" height="80" src="docs/assets/images/playstore_badge.png"></a>
+<a href="https://play.google.com/store/apps/details?id=com.galynte.tapblok"><img alt="Get it on Google Play" height="80" src="docs/assets/images/playstore_badge.png"></a>
 <a href="https://github.com/Galynte/TapBlok/releases"><img alt="Get it on GitHub" height="80" src="docs/assets/images/github_badge.png"></a>
 
 ## Screenshots
@@ -37,7 +37,7 @@ The app is Kotlin, with Jetpack Compose for the UI, Room for on-device storage, 
 * **Permissions**
   * `PACKAGE_USAGE_STATS` — which app is in the foreground, by package name only.
   * `SYSTEM_ALERT_WINDOW` — the blocking screen over a restricted app.
-  * `CAMERA` — optional, and only for scanning a Tagout QR code.
+  * `CAMERA` — optional, and only for scanning a TapOut QR code.
   * `NFC` — optional, and only for reading or writing a session tag.
 * **UI.** `MainActivity` is the home screen. `AppSelectionActivity` is the block list. `SettingsActivity` holds session options. `PrivacyExplanationActivity` runs once, before the home screen.
 * **Storage.** Room stores `BlockedApp` rows (package name only). `BlockedAppDao` inserts, deletes, and lists them.
@@ -46,7 +46,7 @@ The app is Kotlin, with Jetpack Compose for the UI, Room for on-device storage, 
 
 ## Privacy
 
-Tagout stores its data on the device and does not send it to a server. The full policy is in [PRIVACY.md](PRIVACY.md).
+TapOut stores its data on the device and does not send it to a server. The full policy is in [PRIVACY.md](PRIVACY.md).
 
 ## Build and publish
 

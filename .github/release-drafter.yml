@@ -1,4 +1,4 @@
-name-template: "Tagout $RESOLVED_VERSION 🚀"
+name-template: "TapOut $RESOLVED_VERSION 🚀"
 tag-template: "$RESOLVED_VERSION"
 
 # Tell release-drafter how to bump versions

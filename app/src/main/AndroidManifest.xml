@@ -26,13 +26,13 @@
         android:supportsRtl="true"
         android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config"
-        android:theme="@style/Theme.Tagout">
+        android:theme="@style/Theme.TapOut">
 
         <!-- NEW: Privacy explanation – shown on first launch only -->
         <activity
             android:name=".PrivacyExplanationActivity"
             android:exported="true"
-            android:theme="@style/Theme.Tagout">
+            android:theme="@style/Theme.TapOut">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -43,7 +43,7 @@
         <activity
             android:name=".MainActivity"
             android:exported="false"
-            android:theme="@style/Theme.Tagout">
+            android:theme="@style/Theme.TapOut">
             <meta-data
                 android:name="android.app.shortcuts"
                 android:resource="@xml/shortcuts" />
@@ -60,7 +60,7 @@
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
                 <category android:name="android.intent.category.DEFAULT" />
-                <data android:mimeType="application/vnd.com.galynte.tagout" />
+                <data android:mimeType="application/vnd.com.galynte.tapblok" />
             </intent-filter>
         </activity>
 
@@ -68,7 +68,7 @@
             android:name=".AppSelectionActivity"
             android:exported="false"
             android:label="@string/title_activity_app_selection"
-            android:theme="@style/Theme.Tagout" />
+            android:theme="@style/Theme.TapOut" />
 
         <activity
             android:name=".BlockingActivity"
@@ -76,7 +76,7 @@
             android:label="@string/title_activity_blocking"
             android:launchMode="singleInstance"
             android:taskAffinity=""
-            android:theme="@style/Theme.Tagout" />
+            android:theme="@style/Theme.TapOut" />
 
         <activity
             android:name=".ShortcutHandlerActivity"
@@ -87,7 +87,7 @@
             android:name=".QrCodeActivity"
             android:exported="false"
             android:label="@string/title_activity_qr_code"
-            android:theme="@style/Theme.Tagout" />
+            android:theme="@style/Theme.TapOut" />
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
@@ -97,7 +97,7 @@
         <activity
             android:name=".SettingsActivity"
             android:exported="false"
-            android:theme="@style/Theme.Tagout" />
+            android:theme="@style/Theme.TapOut" />
 
         <service
             android:name=".AppMonitoringService"

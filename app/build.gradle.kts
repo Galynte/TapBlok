@@ -5,15 +5,15 @@ plugins {
 }
 
 android {
-    namespace = "com.galynte.tagout"
+    namespace = "com.galynte.tapblok"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.galynte.tagout"
+        applicationId = "com.galynte.tapblok"
         minSdk = 24
         targetSdk = 37
-        versionCode = 1
-        versionName = "1.0.0"
+        versionCode = 10100
+        versionName = "1.1.0"
 
         // Automatically override from Git tag during CI on tagged releases
         if (System.getenv("GITHUB_REF")?.startsWith("refs/tags/") == true) {

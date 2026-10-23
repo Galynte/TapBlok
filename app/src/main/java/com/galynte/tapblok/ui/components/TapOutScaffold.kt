@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of Tagout, a fork of TapBlok by cajdata.
+ * This file is part of TapOut, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tagout.ui.components
+package com.galynte.tapblok.ui.components
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.RowScope
@@ -38,7 +38,7 @@ import androidx.compose.ui.Modifier
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TagoutScaffold(
+fun TapOutScaffold(
     title: String,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier,

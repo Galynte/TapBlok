@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Tagout"
+rootProject.name = "TapOut"
 include(":app")

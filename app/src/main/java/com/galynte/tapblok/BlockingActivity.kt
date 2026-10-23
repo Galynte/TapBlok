@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of Tagout, a fork of TapBlok by cajdata.
+ * This file is part of TapOut, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tagout
+package com.galynte.tapblok
 
 import android.content.Context
 import android.content.Intent
@@ -46,7 +46,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
 import coil3.compose.rememberAsyncImagePainter
-import com.galynte.tagout.ui.theme.TagoutTheme
+import com.galynte.tapblok.ui.theme.TapOutTheme
 
 class BlockingActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,7 +70,7 @@ class BlockingActivity : ComponentActivity() {
         })
 
         setContent {
-            TagoutTheme {
+            TapOutTheme {
                 BlockingScreen(
                     packageName = packageName,
                     onGoHomeClick = goHome,
@@ -140,7 +140,7 @@ fun BlockingScreen(
             )
             Spacer(modifier = Modifier.height(24.dp))
             Text(
-                text = "$appName is blocked by Tagout",
+                text = "$appName is blocked by TapOut",
                 style = MaterialTheme.typography.headlineMedium,
                 color = MaterialTheme.colorScheme.onErrorContainer,
                 textAlign = TextAlign.Center

@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of Tagout, a fork of TapBlok by cajdata.
+ * This file is part of TapOut, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tagout
+package com.galynte.tapblok
 
 import android.graphics.Bitmap
 import android.os.Bundle
@@ -37,8 +37,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
-import com.galynte.tagout.ui.components.TagoutScaffold
-import com.galynte.tagout.ui.theme.TagoutTheme
+import com.galynte.tapblok.ui.components.TapOutScaffold
+import com.galynte.tapblok.ui.theme.TapOutTheme
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.EncodeHintType
 import com.google.zxing.qrcode.QRCodeWriter
@@ -48,14 +48,15 @@ import kotlinx.coroutines.withContext
 class QrCodeActivity : ComponentActivity() {
 
     companion object {
-        const val QR_CODE_CONTENT = "TAGOUT_TOGGLE"
+        // Existing printed codes for this Play listing use this payload.
+        const val QR_CODE_CONTENT = "TAPBLOK_TOGGLE"
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TagoutTheme {
-                TagoutScaffold(
+            TapOutTheme {
+                TapOutScaffold(
                     title = "Your QR Code",
                     onBackClick = { finish() }
                 ) { padding ->

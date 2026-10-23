@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of Tagout, a fork of TapBlok by cajdata.
+ * This file is part of TapOut, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tagout
+package com.galynte.tapblok
 
 import android.content.Intent
 import android.net.Uri
@@ -36,8 +36,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.core.content.edit
-import com.galynte.tagout.ui.components.TagoutScaffold
-import com.galynte.tagout.ui.theme.TagoutTheme
+import com.galynte.tapblok.ui.components.TapOutScaffold
+import com.galynte.tapblok.ui.theme.TapOutTheme
 
 class SettingsActivity : ComponentActivity() {
     companion object {
@@ -54,7 +54,7 @@ class SettingsActivity : ComponentActivity() {
         val currentBreakDurationMinutes = prefs.getInt(PREF_BREAK_DURATION_MINUTES, 0) // 0 = disabled
         val currentMonitoringDurationMinutes = prefs.getInt(PREF_MONITORING_DURATION_MINUTES, 0)
         setContent {
-            TagoutTheme {
+            TapOutTheme {
                 SettingsScreen(
                     onBackClick = { finish() },
                     isMonitoringActive = isMonitoringActive,
@@ -113,7 +113,7 @@ fun SettingsScreen(
         localBreakDurationMinutes = breakDurationMinutes
         localMonitoringDurationMinutes = monitoringDurationMinutes
     }
-    TagoutScaffold(
+    TapOutScaffold(
         title = "Settings",
         onBackClick = onBackClick
     ) { paddingValues ->
@@ -275,7 +275,7 @@ fun SettingsScreen(
             // Open Source Licenses
             ListItem(
                 headlineContent = { Text("Open Source Licenses") },
-                supportingContent = { Text("Third-party library licenses used in Tagout") },
+                supportingContent = { Text("Third-party library licenses used in TapOut") },
                 trailingContent = { Icon(Icons.Filled.ChevronRight, contentDescription = null) },
                 modifier = Modifier.clickable {
                     showLicenseDialog = true
@@ -294,7 +294,7 @@ fun SettingsScreen(
                         ) {
                             Text(
                                 text = """
-                                Tagout is a modified version of the original TapBlok project
+                                TapOut is a modified version of the original TapBlok project
                                 created by cajdata (https://github.com/cajdata/TapBlok).
 
                                 Apache License
@@ -308,7 +308,7 @@ fun SettingsScreen(
                                 "You" (or "Your") shall mean an individual or Legal Entity exercising permissions granted by this License.
                                 ... (full text continues)
                                 See full license at: http://www.apache.org/licenses/LICENSE-2.0
-                                Tagout uses several open source libraries under Apache 2.0, including:
+                                TapOut uses several open source libraries under Apache 2.0, including:
                                 • Jetpack Compose
                                 • AndroidX libraries
                                 • Room persistence library

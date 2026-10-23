@@ -1,4 +1,4 @@
-package com.galynte.tagout
+package com.galynte.tapblok
 
 import org.junit.Test
 

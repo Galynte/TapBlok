@@ -1,4 +1,4 @@
-package com.galynte.tagout.database
+package com.galynte.tapblok.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

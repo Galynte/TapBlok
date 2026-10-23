@@ -1,7 +1,7 @@
 /*
  * Copyright 2025-2026 Galynte
  *
- * This file is part of Tagout, a fork of TapBlok by cajdata.
+ * This file is part of TapOut, a fork of TapBlok by cajdata.
  * Original: https://github.com/cajdata/TapBlok
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package com.galynte.tagout
+package com.galynte.tapblok
 
 import android.app.Application
 import android.content.Intent
@@ -44,10 +44,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import coil3.compose.rememberAsyncImagePainter
-import com.galynte.tagout.database.BlockedApp
-import com.galynte.tagout.database.BlockedAppDao
-import com.galynte.tagout.ui.components.TagoutScaffold
-import com.galynte.tagout.ui.theme.TagoutTheme
+import com.galynte.tapblok.database.BlockedApp
+import com.galynte.tapblok.database.BlockedAppDao
+import com.galynte.tapblok.ui.components.TapOutScaffold
+import com.galynte.tapblok.ui.theme.TapOutTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -169,10 +169,10 @@ class AppSelectionActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            TagoutTheme {
+            TapOutTheme {
                 val appList by viewModel.apps.collectAsState()
 
-                TagoutScaffold(
+                TapOutScaffold(
                     title = "Select Apps to Block",
                     onBackClick = { finish() },
                     actions = {
