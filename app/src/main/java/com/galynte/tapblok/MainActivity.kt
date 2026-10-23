@@ -65,8 +65,8 @@ class MainActivity : ComponentActivity() {
 
 private const val PREF_ENABLE_QR_CODE = "enable_qr_code"
 
-private const val EMERGENCY_HOLD_DURATION_MS = 60_000L
-private const val EMERGENCY_HOLD_SECONDS = 60
+private const val EMERGENCY_HOLD_DURATION_MS = 30_000L
+private const val EMERGENCY_HOLD_SECONDS = 30
 
 @Composable
 fun MainScreen() {

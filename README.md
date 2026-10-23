@@ -27,7 +27,7 @@ The app is Kotlin, with Jetpack Compose for the UI, Room for on-device storage, 
 * **Select all / clear all.** The app list can be filled or emptied in one step.
 * **Session control.** Start or stop a session from the home screen, an NFC tag (including common NTAG215 tags), a QR code, or the "Start Session" shortcut on the app icon.
 * **Automatic timeout.** Settings can end a session after 15, 30, or 60 minutes without a scan or the emergency hold.
-* **Emergency override.** During a session, holding the stop control for 60 seconds ends it if the tag or QR code is missing.
+* **Emergency override.** During a session, holding the stop control for 30 seconds ends it if the tag or QR code is missing.
 * **Blocking screen.** Opening a blocked app shows a cover screen. Back goes home, which closes a common bypass.
 * **Breaks.** When breaks are enabled, a session includes three breaks (5, 15, or 30 minutes). The counter resets when the next session starts.
 * **Attempt counter.** The home screen counts how many times a blocked app was opened during the current session.

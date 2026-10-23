@@ -8,6 +8,8 @@ TapOut is the display name of this fork. The Play application id stays `com.galy
 * Replace the launcher and in-app mark with original ring-and-pause artwork for this fork
 * Use a fixed teal brand palette instead of the default Material purple theme
 * Keep the emergency hold control readable as a solid button after the Compose update
+* Shorten the emergency hold from 60 seconds to 30 seconds
+* Add the Play listing icon and 1024×500 feature graphic
 
 ### Maintenance
 
