@@ -1,4 +1,4 @@
-# Unreleased
+# 1.2.1 (2026-10-30)
 
 ### Bug Fixes
 
