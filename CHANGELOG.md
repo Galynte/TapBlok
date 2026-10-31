@@ -1,3 +1,9 @@
+# Unreleased
+
+### Bug Fixes
+
+* Restore NFC tag unlock on Android 17. Tag intents are delivered only to an activity that requires `android.permission.DISPATCH_NFC_MESSAGE` when the app targets API 37.
+
 # 1.2.0 (2026-10-22)
 
 TapOut is the display name of this fork. The Play application id stays `com.galynte.tapblok`, so this ships as an update to the existing listing. Version 1.2.0 follows the published 1.1.4 release. It remains a derivative of [TapBlok by cajdata](https://github.com/cajdata/TapBlok) under Apache 2.0.

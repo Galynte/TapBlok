@@ -53,9 +53,12 @@
             android:name=".NfcWriteActivity"
             android:exported="false" />
 
+        <!-- Android 17 only delivers a tag intent to an activity that requires this
+             permission when the app targets API 37. The NFC system service holds it. -->
         <activity
             android:name=".NfcHandlerActivity"
             android:exported="true"
+            android:permission="android.permission.DISPATCH_NFC_MESSAGE"
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.nfc.action.NDEF_DISCOVERED" />
